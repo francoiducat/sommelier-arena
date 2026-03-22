@@ -221,6 +221,7 @@ Sent to each participant:
   type: 'game:round_leaderboard';
   rankings: RankingEntry[];
   roundIndex: number;
+  totalRounds: number;
 }
 ```
 
@@ -241,6 +242,63 @@ Sent to each participant:
 ```ts
 { type: 'error'; message: string }
 ```
+
+---
+
+## Connection / Lifecycle Events
+
+### `server:state_snapshot`
+
+Sent by the backend to **every client** immediately after they connect or reconnect. Contains the current session phase so clients can restore their UI state.
+
+**Direction:** Server → Client  
+**Payload:**
+```json
+{
+  "phase": "waiting | question_open | question_paused | question_revealed | round_leaderboard | ended",
+  "code": "1234"
+}
+```
+
+> Participants use this event to detect when a session has ended while they were disconnected. If `phase === "ended"`, the client transitions to the ended state and clears the rejoin token.
+
+---
+
+### `sessions:list`
+
+Sent to the **host** in response to connecting with a host ID. Contains all sessions stored under that host ID.
+
+**Direction:** Server → Host  
+**Payload:**
+```json
+[
+  {
+    "code": "1234",
+    "title": "My Wine Night",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "status": "waiting | ended",
+    "participantCount": 3
+  }
+]
+```
+
+---
+
+### `host:state_snapshot`
+
+Sent to a **host** on reconnect to restore their session state.
+
+**Direction:** Server → Host  
+**Payload:** Same shape as the full host game state (participants, current question, phase, etc.)
+
+---
+
+### `participant:state_snapshot`
+
+Sent to a **participant** on reconnect to restore their game state.
+
+**Direction:** Server → Participant  
+**Payload:** Same shape as the full participant game state (phase, current question, selected option, etc.)
 
 ---
 

@@ -13,7 +13,7 @@ Sommelier Arena exposes two WebSocket-capable endpoints depending on how you run
 | URL | What it is |
 |-----|-----------|
 | `ws://localhost:1999/parties/main/{code}` | **Direct** PartyKit dev server |
-| `ws://localhost:3000/parties/main/{code}` | **Proxied** — browser → nginx → PartyKit |
+| `ws://localhost:4321/parties/main/{code}` | **Proxied** — browser → nginx → PartyKit |
 
 Both reach the same Durable Object and the same game logic. The difference is purely in the network path.
 
@@ -44,7 +44,7 @@ The browser connects **directly** to `ws://localhost:1999/parties/main/{code}`. 
 
 ```
 docker-compose --profile full up --build -d
-# front (nginx) → localhost:3000
+# front (nginx) → localhost:4321
 # back (PartyKit) → localhost:1999  (internal only, not exposed to the browser directly)
 # docs (Docusaurus) → localhost:3002
 ```
@@ -52,13 +52,13 @@ docker-compose --profile full up --build -d
 In this mode, the Astro static site is built into nginx. At build time, the env var is baked in:
 
 ```
-PUBLIC_PARTYKIT_HOST=localhost:3000   ← set via Docker build arg
+PUBLIC_PARTYKIT_HOST=localhost:4321   ← set via Docker build arg
 ```
 
-The browser connects to `ws://localhost:3000/parties/main/{code}`. nginx then **proxies** that to `http://back:1999/parties/main/{code}` (inside the Docker network — `back` is the service name).
+The browser connects to `ws://localhost:4321/parties/main/{code}`. nginx then **proxies** that to `http://back:1999/parties/main/{code}` (inside the Docker network — `back` is the service name).
 
 ```
-Browser  ──ws://localhost:3000/parties/main/1234──►  nginx (front:3000)
+Browser  ──ws://localhost:4321/parties/main/1234──►  nginx (front:4321)
                                                           │
                                               proxy_pass  ▼
                                          PartyKit (back:1999) [Docker internal]
@@ -66,10 +66,10 @@ Browser  ──ws://localhost:3000/parties/main/1234──►  nginx (front:3000
 
 **Why go via nginx instead of directly to 1999?**
 - The Astro build is **static** — `PUBLIC_PARTYKIT_HOST` is baked at build time, not runtime. There is no way to change it after the image is built.
-- Using the same origin (`localhost:3000`) avoids cross-origin WebSocket upgrades.
-- In production the exact same pattern applies (your domain instead of `localhost:3000`).
+- Using the same origin (`localhost:4321`) avoids cross-origin WebSocket upgrades.
+- In production the exact same pattern applies (your domain instead of `localhost:4321`).
 
-**Use `localhost:3000` (proxied) for:**
+**Use `localhost:4321` (proxied) for:**
 - Beta testing the full stack in Docker
 - Simulating the production network topology
 
@@ -104,7 +104,31 @@ Browser  ──wss://sommelier-arena.USERNAME.partykit.dev/parties/main/1234─�
 | Mode | `PUBLIC_PARTYKIT_HOST` | Who proxies? |
 |------|-----------------------|--------------|
 | Mode A — local dev | `localhost:1999` | None — direct |
-| Mode B — Docker | `localhost:3000` | nginx (`front` container) |
+| Mode B — Docker | `localhost:4321` | nginx (`front` container) |
 | Production | `sommelier-arena.USERNAME.partykit.dev` | Cloudflare (native) |
 
 The PartyKit WebSocket path is always `/parties/main/{sessionCode}` — `main` matches the `"main"` entry point in `partykit.json`, and `{sessionCode}` is the 4-digit room ID.
+
+---
+
+## Port reference
+
+| Environment | Frontend URL | PartyKit/WebSocket |
+|-------------|-------------|-------------------|
+| Mode A (local dev) | `http://localhost:4321` | `localhost:1999` |
+| Mode B (Docker) | `http://localhost:4321` | internal (nginx proxies `/parties/*` to `back:1999`) |
+| Production | `https://your-domain.com` | `<project>.partykit.dev` |
+
+---
+
+## Environment variables
+
+| Variable | Where to set | Value |
+|----------|-------------|-------|
+| `PUBLIC_PARTYKIT_HOST` | `front/.env.local` (Mode A) | `localhost:1999` |
+| `PUBLIC_PARTYKIT_HOST` | `docker-compose.yml` build arg (Mode B) | `localhost:4321` |
+| `PUBLIC_PARTYKIT_HOST` | Cloudflare Pages dashboard (Production) | `<project>.partykit.dev` |
+
+> **Mode B note:** In Docker, nginx proxies WebSocket connections from `localhost:4321/parties/*` to the PartyKit container on port 1999. The frontend sees a single origin (`localhost:4321`) for both HTTP and WebSocket — no cross-origin issues.
+
+> **localhost:1999 vs localhost:4321 in dev:** When running Mode A (local dev with `npx partykit dev`), PartyKit listens on port **1999** directly. Your browser connects to `ws://localhost:1999/parties/main/{code}`. In Mode B (Docker), PartyKit is internal-only; nginx at port **4321** accepts WebSocket upgrades at `/parties/*` and proxies them to the PartyKit container. The app code is identical in both modes — only `PUBLIC_PARTYKIT_HOST` changes.

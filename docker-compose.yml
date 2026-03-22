@@ -27,11 +27,9 @@ services:
         # PUBLIC_PARTYKIT_HOST is baked into the Astro static build.
         # The browser connects to localhost:3000 (nginx) which proxies
         # /parties/ requests to the back container on port 1999.
-        PUBLIC_PARTYKIT_HOST: localhost:3000
+        PUBLIC_PARTYKIT_HOST: localhost:4321
     ports:
-      - '3000:3000'
-      - '80:3000'    # also serve on port 80 so browsers with a cached
-                     # redirect to http://localhost/host/ still land correctly
+      - '4321:3000'
     depends_on:
       back:
         condition: service_healthy

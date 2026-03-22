@@ -5,7 +5,8 @@ import type {
   RankingEntry,
   SessionListEntry,
 } from '../types/events';
-export { saveSession, loadSessions, mergeSession } from '../lib/sessionStorage';
+import { deleteSession } from '../lib/sessionStorage';
+export { saveSession, loadSessions, mergeSession, deleteSession } from '../lib/sessionStorage';
 
 export type HostPhase =
   | 'setup'
@@ -66,6 +67,7 @@ interface HostState {
   setCode: (code: string) => void;
   setHostId: (id: string) => void;
   setSessions: (sessions: SessionListEntry[]) => void;
+  removeSession: (code: string) => void;
   setParticipants: (participants: string[]) => void;
   setAnsweredStats: (answeredCount: number, totalCount: number) => void;
   setIsPaused: (paused: boolean) => void;
@@ -77,7 +79,7 @@ interface HostState {
   resetAnsweredStats: () => void;
 }
 
-export const useHostStore = create<HostState>((set) => ({
+export const useHostStore = create<HostState>((set, get) => ({
   phase: 'setup',
   code: null,
   hostId: loadOrCreateHostId(),
@@ -102,6 +104,11 @@ export const useHostStore = create<HostState>((set) => ({
     set({ hostId });
   },
   setSessions: (sessions) => set({ sessions }),
+  removeSession: (code) => {
+    const { hostId, sessions } = get();
+    deleteSession(hostId, code);
+    set({ sessions: sessions.filter((s) => s.code !== code) });
+  },
   setParticipants: (participants) => set({ participants }),
   setAnsweredStats: (answeredCount, totalCount) =>
     set({ answeredCount, totalCount }),

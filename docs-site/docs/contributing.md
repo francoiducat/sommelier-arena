@@ -10,7 +10,7 @@ sidebar_label: Contributing
 
 | Branch | Purpose |
 |--------|---------|
-| `main` | Stable NestJS + Docker stack (v1.0) |
+| `main` | Legacy/stable branch (v1.0) |
 | `cloudflare-migration` | Active development — PartyKit stack (v2.0) |
 
 All feature work for v2.0 goes on `cloudflare-migration` or a feature branch off it.
@@ -34,9 +34,6 @@ cd front && npm run dev
 # Frontend unit tests (must all pass)
 cd front && npm test
 
-# Backend unit tests
-cd back && npm test
-
 # TypeScript check (frontend)
 cd front && npx tsc --noEmit
 ```
@@ -45,15 +42,15 @@ cd front && npx tsc --noEmit
 
 | Concern | Convention |
 |---------|-----------|
-| Business logic | `party/game.ts` only — never in frontend |
+| Business logic | `back/game.ts` only — never in frontend |
 | Frontend state | Zustand stores — never `useState` for global state |
-| Event shapes | Defined in `front/src/types/events.ts` — keep in sync with `party/game.ts` |
+| Event shapes | Defined in `front/src/types/events.ts` — keep in sync with `back/game.ts` |
 | Component naming | `Host*` for host-side, `Participant*` for participant-side, no prefix for shared |
 | Tests | Mirror `src/` structure in `src/__tests__/`; target ≥ 80% coverage |
 
 ## Adding a new event type
 
-1. Add the message handler in `party/game.ts`
+1. Add the message handler in `back/game.ts`
 2. Add the payload interface in `front/src/types/events.ts`
 3. Handle the event in `useHostSocket.ts` or `useParticipantSocket.ts`
 4. Update `event-reference.md`
@@ -73,7 +70,24 @@ Common scopes: `party`, `front`, `docs`, `e2e`, `infra`
 ## PR checklist
 
 - [ ] `cd front && npm test` — all pass
-- [ ] `cd back && npm test` — all pass
 - [ ] `cd front && npx tsc --noEmit` — clean
 - [ ] New events documented in `event-reference.md`
 - [ ] No `console.log` left in production code
+
+---
+
+## Documentation versioning
+
+This repo uses Docusaurus versioning:
+
+- **`docs/`** = current documentation (v2.0 PartyKit) — **edit these files for all ongoing work**
+- **`versioned_docs/version-1.0-nestjs/`** = frozen snapshot of the v1.0 NestJS docs — read-only, do not edit
+- **`versions.json`** = `["1.0-nestjs"]` — list of frozen versions
+- **`versioned_sidebars/`** = sidebar config for each frozen version
+
+To snapshot the current docs into a new frozen version (e.g. when v3.0 ships):
+```bash
+cd docs-site && npm run docusaurus docs:version 2.0-partykit
+```
+
+> In this repo, v1.0 docs are frozen and preserved for historical reference. All active documentation work goes in `docs/`.

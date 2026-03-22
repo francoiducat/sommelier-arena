@@ -7,6 +7,7 @@ interface HostDashboardProps {
   onOpenSession: (code: string) => void;
   onViewResults: (session: SessionListEntry) => void;
   onNewSession: () => void;
+  onDeleteSession: (code: string) => void;
 }
 
 export function HostDashboard({
@@ -15,6 +16,7 @@ export function HostDashboard({
   onOpenSession,
   onViewResults,
   onNewSession,
+  onDeleteSession,
 }: HostDashboardProps) {
   const activeSessions = sessions.filter(
     (s) => s.status === 'waiting' || s.status === 'active',
@@ -71,12 +73,22 @@ export function HostDashboard({
                       {new Date(session.createdAt).toLocaleDateString()}
                     </p>
                   </div>
-                  <button
-                    onClick={() => onOpenSession(session.code)}
-                    className="flex-shrink-0 bg-violet-600 text-white rounded-xl px-5 py-2 font-semibold hover:bg-violet-700 transition-colors text-sm"
-                  >
-                    Open
-                  </button>
+                  <div className="flex gap-2 flex-shrink-0">
+                    <button
+                      onClick={() => onOpenSession(session.code)}
+                      className="bg-violet-600 text-white rounded-xl px-5 py-2 font-semibold hover:bg-violet-700 transition-colors text-sm"
+                    >
+                      Open
+                    </button>
+                    <button
+                      onClick={() => onDeleteSession(session.code)}
+                      className="border border-slate-300 text-slate-500 rounded-xl px-3 py-2 hover:bg-red-50 hover:border-red-300 hover:text-red-600 transition-colors text-sm"
+                      aria-label={`Delete session ${session.code}`}
+                      title="Delete session"
+                    >
+                      🗑
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -109,13 +121,23 @@ export function HostDashboard({
                       {new Date(session.createdAt).toLocaleDateString()}
                     </p>
                   </div>
-                  <button
-                    onClick={() => onViewResults(session)}
-                    disabled={!session.finalRankings}
-                    className="flex-shrink-0 border border-slate-300 text-slate-600 rounded-xl px-5 py-2 font-semibold hover:bg-slate-50 transition-colors text-sm disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    Results
-                  </button>
+                  <div className="flex gap-2 flex-shrink-0">
+                    <button
+                      onClick={() => onViewResults(session)}
+                      disabled={!session.finalRankings}
+                      className="border border-slate-300 text-slate-600 rounded-xl px-5 py-2 font-semibold hover:bg-slate-50 transition-colors text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      Results
+                    </button>
+                    <button
+                      onClick={() => onDeleteSession(session.code)}
+                      className="border border-slate-300 text-slate-500 rounded-xl px-3 py-2 hover:bg-red-50 hover:border-red-300 hover:text-red-600 transition-colors text-sm"
+                      aria-label={`Delete session ${session.code}`}
+                      title="Delete session"
+                    >
+                      🗑
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>

@@ -120,24 +120,51 @@ describe('useParticipantSocket', () => {
   });
 
   it('socket close clears localStorage rejoin token', () => {
+    // Socket close no longer changes phase — it only matters for the
+    // temporary-disconnect case where PartySocket will auto-reconnect.
     localStorage.setItem(REJOIN_KEY, JSON.stringify({ rejoinToken: 'tok', code: '1234', pseudonym: 'Alice' }));
     renderHook(() => useParticipantSocket('1234'));
     closeListeners.forEach((cb) => cb());
-    expect(localStorage.getItem(REJOIN_KEY)).toBeNull();
+    // close does NOT clear the rejoin token — clearRejoin is only called on
+    // server:state_snapshot(ended) or session:ended message
+    expect(localStorage.getItem(REJOIN_KEY)).not.toBeNull();
   });
 
-  it('socket close sets phase to ended when not already in finalLeaderboard', () => {
+  it('socket close does NOT change phase (PartySocket will auto-reconnect)', () => {
     renderHook(() => useParticipantSocket('1234'));
     useParticipantStore.getState().setPhase('question');
     closeListeners.forEach((cb) => cb());
-    expect(useParticipantStore.getState().phase).toBe('ended');
+    // Phase must stay as-is — PartySocket will reconnect and receive a snapshot
+    expect(useParticipantStore.getState().phase).toBe('question');
   });
 
-  it('socket close does not overwrite finalLeaderboard phase', () => {
+  it('socket close does not affect finalLeaderboard phase', () => {
     renderHook(() => useParticipantSocket('1234'));
     useParticipantStore.getState().setPhase('finalLeaderboard');
     closeListeners.forEach((cb) => cb());
     expect(useParticipantStore.getState().phase).toBe('finalLeaderboard');
+  });
+
+  it('server:state_snapshot with phase=ended transitions to ended and clears rejoin', () => {
+    localStorage.setItem(REJOIN_KEY, JSON.stringify({ rejoinToken: 'tok', code: '1234', pseudonym: 'Alice' }));
+    renderHook(() => useParticipantSocket('1234'));
+    emitMessage('server:state_snapshot', { phase: 'ended', code: '1234' });
+    expect(useParticipantStore.getState().phase).toBe('ended');
+    expect(localStorage.getItem(REJOIN_KEY)).toBeNull();
+  });
+
+  it('server:state_snapshot with phase=waiting does NOT change phase', () => {
+    renderHook(() => useParticipantSocket('1234'));
+    useParticipantStore.getState().setPhase('lobby');
+    emitMessage('server:state_snapshot', { phase: 'waiting', code: '1234' });
+    expect(useParticipantStore.getState().phase).toBe('lobby');
+  });
+
+  it('server:state_snapshot with phase=question_open does NOT change phase', () => {
+    renderHook(() => useParticipantSocket('1234'));
+    useParticipantStore.getState().setPhase('question');
+    emitMessage('server:state_snapshot', { phase: 'question_open', code: '1234' });
+    expect(useParticipantStore.getState().phase).toBe('question');
   });
 
   it('session:ended while in finalLeaderboard keeps finalLeaderboard phase', () => {

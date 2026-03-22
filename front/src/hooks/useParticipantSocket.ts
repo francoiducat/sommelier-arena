@@ -108,20 +108,28 @@ export function useParticipantSocket(code: string) {
           store.clearRejoin();
           break;
         }
+        case 'server:state_snapshot': {
+          // Sent by the backend on every new connection with the current room phase.
+          // Only transition to 'ended' when the room is genuinely finished — this
+          // handles reconnecting to an already-ended session (e.g. after server restart).
+          // We intentionally do NOT set 'ended' on socket close because PartySocket
+          // reconnects automatically; the close event fires on every reconnect cycle.
+          const snap = msg as unknown as { phase: string };
+          if (snap.phase === 'ended') {
+            store.clearRejoin();
+            store.setPhase('ended');
+          }
+          break;
+        }
       }
     };
 
     socket.addEventListener('message', onMessage);
-
-    socket.addEventListener('close', () => {
-      const phase = useParticipantStore.getState().phase;
-      if (phase !== 'finalLeaderboard' && phase !== 'ended') {
-        // Host crashed or network dropped — clear stale rejoin token so
-        // the participant can join a new session on next visit.
-        useParticipantStore.getState().clearRejoin();
-        useParticipantStore.getState().setPhase('ended');
-      }
-    });
+    // NOTE: No socket 'close' handler here. PartySocket reconnects automatically —
+    // the close event fires on every temporary disconnect (network hiccup, host
+    // navigation, idle timeout). Setting phase='ended' on close caused participants
+    // to see "Session Ended" on every reconnect cycle and wiped their rejoin tokens.
+    // The server:state_snapshot handler above covers reconnecting to a dead session.
 
     return () => {
       socket.removeEventListener('message', onMessage);

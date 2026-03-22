@@ -39,16 +39,34 @@ docker-compose --profile full up --build
 
 | Service | URL |
 |---------|-----|
-| Frontend (nginx) | `http://localhost:3000` |
+| Frontend (nginx) | `http://localhost:4321` |
 | PartyKit backend | `http://localhost:1999` |
 | Docs (Docusaurus) | `http://localhost:3002` |
+
+### Docker cheat sheet
+
+```bash
+# Start the full stack
+docker-compose --profile full up --build -d
+
+# Stop the full stack (MUST use --profile full)
+docker-compose --profile full down
+
+# Rebuild a single service
+docker-compose --profile full up --build -d front
+
+# View logs
+docker-compose --profile full logs -f
+```
+
+> ⚠️ **Important:** Running `docker-compose down` (without `--profile full`) does **not** stop containers started with `--profile full`. Always include `--profile full` in both `up` and `down` commands.
 
 ## Mode C — Docs only
 
 ```bash
 cd docs-site
 npm start
-# → http://localhost:3000
+# → http://localhost:3002
 ```
 
 ## Run tests
@@ -56,9 +74,6 @@ npm start
 ```bash
 # Frontend unit tests (Vitest + RTL)
 cd front && npm test
-
-# Backend unit tests (Jest)
-cd back && npm test
 
 # E2E tests (requires Mode B Docker stack running)
 cd e2e && npm test -- --project=chromium
@@ -72,3 +87,5 @@ cd e2e && npm test -- --project=chromium
 | `PUBLIC_PARTYKIT_HOST` | Cloudflare Pages dashboard | `sommelier-arena.USERNAME.partykit.dev` (prod) |
 
 See `front/.env.local.example` for a template.
+
+> **Note:** Sessions persist in your browser's localStorage. Use the 🗑 button on the Host Dashboard to clean up old sessions.

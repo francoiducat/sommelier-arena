@@ -33,7 +33,7 @@ describe('HostDashboard', () => {
         sessions={[]}
         onOpenSession={vi.fn()}
         onViewResults={vi.fn()}
-        onNewSession={vi.fn()}
+        onNewSession={vi.fn()} onDeleteSession={vi.fn()}
       />,
     );
     expect(screen.getByText('TANNIC-FALCON')).toBeInTheDocument();
@@ -46,7 +46,7 @@ describe('HostDashboard', () => {
         sessions={activeSessions}
         onOpenSession={vi.fn()}
         onViewResults={vi.fn()}
-        onNewSession={vi.fn()}
+        onNewSession={vi.fn()} onDeleteSession={vi.fn()}
       />,
     );
     expect(screen.getByText('Wine Night 1')).toBeInTheDocument();
@@ -61,7 +61,7 @@ describe('HostDashboard', () => {
         sessions={activeSessions}
         onOpenSession={onOpenSession}
         onViewResults={vi.fn()}
-        onNewSession={vi.fn()}
+        onNewSession={vi.fn()} onDeleteSession={vi.fn()}
       />,
     );
     fireEvent.click(screen.getByRole('button', { name: /open/i }));
@@ -75,7 +75,7 @@ describe('HostDashboard', () => {
         sessions={endedSessions}
         onOpenSession={vi.fn()}
         onViewResults={vi.fn()}
-        onNewSession={vi.fn()}
+        onNewSession={vi.fn()} onDeleteSession={vi.fn()}
       />,
     );
     expect(screen.getByText('Old Session')).toBeInTheDocument();
@@ -90,7 +90,7 @@ describe('HostDashboard', () => {
         sessions={endedSessions}
         onOpenSession={vi.fn()}
         onViewResults={onViewResults}
-        onNewSession={vi.fn()}
+        onNewSession={vi.fn()} onDeleteSession={vi.fn()}
       />,
     );
     fireEvent.click(screen.getByRole('button', { name: /results/i }));
@@ -104,7 +104,7 @@ describe('HostDashboard', () => {
         sessions={[{ ...endedSessions[0], finalRankings: undefined }]}
         onOpenSession={vi.fn()}
         onViewResults={vi.fn()}
-        onNewSession={vi.fn()}
+        onNewSession={vi.fn()} onDeleteSession={vi.fn()}
       />,
     );
     expect(screen.getByRole('button', { name: /results/i })).toBeDisabled();
@@ -117,7 +117,7 @@ describe('HostDashboard', () => {
         sessions={activeSessions}
         onOpenSession={vi.fn()}
         onViewResults={vi.fn()}
-        onNewSession={vi.fn()}
+        onNewSession={vi.fn()} onDeleteSession={vi.fn()}
       />,
     );
     // The badge text "🟢 Open" appears in a span inside the card
@@ -131,7 +131,7 @@ describe('HostDashboard', () => {
         sessions={endedSessions}
         onOpenSession={vi.fn()}
         onViewResults={vi.fn()}
-        onNewSession={vi.fn()}
+        onNewSession={vi.fn()} onDeleteSession={vi.fn()}
       />,
     );
     expect(screen.getByText(/ended/i)).toBeInTheDocument();
@@ -144,7 +144,7 @@ describe('HostDashboard', () => {
         sessions={[]}
         onOpenSession={vi.fn()}
         onViewResults={vi.fn()}
-        onNewSession={vi.fn()}
+        onNewSession={vi.fn()} onDeleteSession={vi.fn()}
       />,
     );
     expect(screen.getByText(/No sessions yet/i)).toBeInTheDocument();
@@ -159,9 +159,44 @@ describe('HostDashboard', () => {
         onOpenSession={vi.fn()}
         onViewResults={vi.fn()}
         onNewSession={onNewSession}
+        onDeleteSession={vi.fn()}
       />,
     );
     fireEvent.click(screen.getByRole('button', { name: /new session/i }));
     expect(onNewSession).toHaveBeenCalledOnce();
+  });
+
+  it('calls onDeleteSession with correct code when delete button is clicked (active session)', () => {
+    const onDeleteSession = vi.fn();
+    const session = { code: '1234', title: 'Test Wine', createdAt: new Date().toISOString(), status: 'waiting' as const, participantCount: 0 };
+    render(
+      <HostDashboard
+        hostId="TANNIC-FALCON"
+        sessions={[session]}
+        onOpenSession={vi.fn()}
+        onViewResults={vi.fn()}
+        onNewSession={vi.fn()}
+        onDeleteSession={onDeleteSession}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: /delete session 1234/i }));
+    expect(onDeleteSession).toHaveBeenCalledWith('1234');
+  });
+
+  it('calls onDeleteSession with correct code when delete button is clicked (ended session)', () => {
+    const onDeleteSession = vi.fn();
+    const session = { code: '5678', title: 'Old Wine', createdAt: new Date().toISOString(), status: 'ended' as const, participantCount: 2 };
+    render(
+      <HostDashboard
+        hostId="TANNIC-FALCON"
+        sessions={[session]}
+        onOpenSession={vi.fn()}
+        onViewResults={vi.fn()}
+        onNewSession={vi.fn()}
+        onDeleteSession={onDeleteSession}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: /delete session 5678/i }));
+    expect(onDeleteSession).toHaveBeenCalledWith('5678');
   });
 });

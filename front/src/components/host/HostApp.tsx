@@ -101,6 +101,9 @@ export function HostApp() {
             }
           }}
           onNewSession={handleNewSession}
+          onDeleteSession={(sessionCode) => {
+            useHostStore.getState().removeSession(sessionCode);
+          }}
         />
       </div>
     );

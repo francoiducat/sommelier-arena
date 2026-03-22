@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Browser } from '@playwright/test';
 
 // Reusable helper: fill in a minimal valid session (1 wine, all fields)
 async function fillMinimalSession(page: import('@playwright/test').Page) {
@@ -172,5 +172,66 @@ test.describe('Host Session', () => {
 
     await ctx1.close();
     await ctx2.close();
+  });
+
+  test('participant remains visible in lobby when host navigates away and back @smoke', async ({ browser }) => {
+    // R5-B fix: host session state must survive a navigation away and back to the session URL.
+    const hostCtx = await browser.newContext();
+    const hostPage = await hostCtx.newPage();
+
+    await test.step('Host creates a session', async () => {
+      await hostPage.goto('/host');
+      const newBtn = hostPage.getByRole('button', { name: /new session/i });
+      if (await newBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+        await newBtn.click();
+      }
+      await expect(hostPage.getByRole('button', { name: /create session/i })).toBeVisible();
+      await fillMinimalSession(hostPage);
+      await hostPage.getByRole('button', { name: /create session/i }).click();
+      await expect(hostPage.getByText(/^\d{4}$/)).toBeVisible();
+    });
+
+    const code = ((await hostPage.getByText(/^\d{4}$/).textContent()) ?? '').trim();
+    const sessionUrl = hostPage.url();
+
+    const participantCtx = await browser.newContext();
+    const participantPage = await participantCtx.newPage();
+
+    try {
+      await test.step('Participant joins the session', async () => {
+        await participantPage.goto('/play');
+        await participantPage.getByLabel('Session code').fill(code);
+        await participantPage.getByRole('button', { name: /join/i }).click();
+        await expect(participantPage.getByText(/waiting for the host/i)).toBeVisible();
+      });
+
+      await test.step('Participant pseudonym appears in the host lobby', async () => {
+        // The participant list should contain at least one entry
+        await expect(hostPage.getByRole('listitem').first()).toBeVisible({ timeout: 5000 });
+      });
+
+      const participantName = ((await hostPage.getByRole('listitem').first().textContent()) ?? '').trim();
+
+      await test.step('Host navigates away to the dashboard', async () => {
+        await hostPage.goto('/host');
+        await expect(hostPage.getByRole('button', { name: /new session/i })).toBeVisible();
+      });
+
+      await test.step('Host navigates back to the session URL', async () => {
+        await hostPage.goto(sessionUrl);
+        await expect(hostPage.getByText(code)).toBeVisible({ timeout: 5000 });
+      });
+
+      await test.step('Participant is still listed in the lobby', async () => {
+        // The participant should still be visible — R5-B regression guard
+        await expect(hostPage.getByRole('listitem').first()).toBeVisible({ timeout: 5000 });
+        if (participantName) {
+          await expect(hostPage.getByText(participantName)).toBeVisible({ timeout: 5000 });
+        }
+      });
+    } finally {
+      await participantCtx.close();
+      await hostCtx.close();
+    }
   });
 });

@@ -65,3 +65,9 @@ export function mergeSession(
   }
   writeAll(hostId, all);
 }
+
+/** Remove a single session entry. No-op if the session does not exist. */
+export function deleteSession(hostId: string, code: string): void {
+  const all = readAll(hostId);
+  writeAll(hostId, all.filter((s) => s.code !== code));
+}

@@ -26,6 +26,7 @@ const sidebars: SidebarsConfig = {
         'event-reference',
         'data-persistence',
         'host-identity',
+        'proxy-worker',
       ],
     },
     {

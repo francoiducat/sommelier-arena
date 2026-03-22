@@ -842,8 +842,11 @@ export default class GameSession implements Party.Server {
   // ─── Misc helpers ─────────────────────────────────────────────────────────
 
   private getLobbyParticipants(): string[] {
+    // Show ALL joined participants, not just those currently connected.
+    // During reconnect cycles a participant's socket briefly closes, marking
+    // connected=false. Filtering by connected would make them disappear from
+    // the host's lobby view until they reconnect — confusing to the host.
     return Array.from(this.participants.values())
-      .filter((p) => p.connected)
       .map((p) => p.pseudonym);
   }
 

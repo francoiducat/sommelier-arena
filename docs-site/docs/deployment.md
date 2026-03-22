@@ -24,7 +24,7 @@ The production stack runs entirely on Cloudflare's free tier. No servers to mana
 npx partykit deploy
 ```
 
-This deploys `party/game.ts` as a Durable Object class to `sommelier-arena.USERNAME.partykit.dev`.
+This deploys `back/game.ts` as a Durable Object class to `sommelier-arena.USERNAME.partykit.dev`.
 
 > **First time**: `npx partykit login` to authenticate with your Cloudflare account.
 
@@ -70,6 +70,9 @@ In Cloudflare Pages → your front project → **Custom domains** → Add domain
 2. Paste the contents of `proxy-worker/index.ts`
 3. Deploy
 4. Go to **Triggers** → **Routes** → Add route: `sommelier-arena.ducatillon.net/docs*`
+5. Set the `DOCS_ORIGIN` environment variable to the URL of your Docusaurus Pages project (e.g. `https://sommelier-arena-docs.pages.dev`). This controls where `/docs/*` requests are proxied.
+
+The proxy worker also routes `/docs/*` to the Docusaurus Pages project, keeping everything under one domain. See [Proxy Worker](proxy-worker) for full details.
 
 > See [Cloudflare Setup](cloudflare-setup) for a step-by-step dashboard walkthrough with UI labels.
 

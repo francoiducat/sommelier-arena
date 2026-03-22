@@ -83,6 +83,32 @@ test.describe('Host Dashboard', () => {
     await ctx.close();
   });
 
+  test('host can delete a session from the dashboard @smoke', async ({ browser }) => {
+    const { page, ctx, code } = await test.step('Create a session', async () => {
+      return createSessionGetCode(browser);
+    });
+
+    await test.step('Navigate back to the dashboard', async () => {
+      await page.goto('/host');
+    });
+
+    await test.step('Session appears in the dashboard', async () => {
+      await expect(page.getByText(code)).toBeVisible({ timeout: 5000 });
+    });
+
+    await test.step('Click the delete button for the session', async () => {
+      const deleteBtn = page.getByRole('button', { name: new RegExp(`Delete session ${code}`, 'i') });
+      await expect(deleteBtn).toBeVisible({ timeout: 5000 });
+      await deleteBtn.click();
+    });
+
+    await test.step('Session is no longer listed in the dashboard', async () => {
+      await expect(page.getByText(code)).not.toBeVisible({ timeout: 5000 });
+    });
+
+    await ctx.close();
+  });
+
   test('Host can navigate back to an open session via "Open" button @smoke', async ({ browser }) => {
     const { page, ctx, code } = await test.step('Create a session', async () => {
       return createSessionGetCode(browser);
