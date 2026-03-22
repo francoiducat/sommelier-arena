@@ -25,7 +25,8 @@ describe('SessionForm', () => {
 
   it('color distractors have default values pre-filled', () => {
     render(<SessionForm onSubmit={vi.fn()} />);
-    expect(screen.getByDisplayValue('Rouge')).toBeInTheDocument();
+    // Rouge appears twice: once as the color correct answer, once as distractor 1
+    expect(screen.getAllByDisplayValue('Rouge').length).toBeGreaterThanOrEqual(1);
     expect(screen.getByDisplayValue('Blanc')).toBeInTheDocument();
     expect(screen.getByDisplayValue('Rosé')).toBeInTheDocument();
   });
@@ -37,24 +38,20 @@ describe('SessionForm', () => {
     expect(screen.getByDisplayValue('2018')).toBeInTheDocument();
   });
 
-  it('correct answer fields are blank by default', async () => {
+  it('correct answer fields are pre-filled with example values by default', () => {
     render(<SessionForm onSubmit={vi.fn()} />);
-    // Find all correct answer inputs; they should have no value
     const correctAnswerInputs = screen.getAllByPlaceholderText(/correct answer/i);
+    // All correct answer fields should have a non-empty default value
     correctAnswerInputs.forEach((input) => {
-      expect((input as HTMLInputElement).value).toBe('');
+      expect((input as HTMLInputElement).value).not.toBe('');
     });
   });
 
-  it('grape_variety has no pre-filled distractors', () => {
+  it('grape_variety has pre-filled distractors', () => {
     render(<SessionForm onSubmit={vi.fn()} />);
-    // Get all inputs that are blank — this confirms grape_variety distractors are empty
-    const allInputs = screen.getAllByRole('textbox');
-    // Grape variety distractor fields should be empty (not pre-filled)
-    const grapeInputs = allInputs.filter(
-      (el) => (el as HTMLInputElement).value === '' && el.getAttribute('placeholder')?.toLowerCase().includes('distractor'),
-    );
-    expect(grapeInputs.length).toBeGreaterThan(0);
+    expect(screen.getByDisplayValue('Pinot Noir')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('Syrah')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('Merlot')).toBeInTheDocument();
   });
 
   it('calls onSubmit with correct shape when form is filled and submitted', async () => {
@@ -64,22 +61,7 @@ describe('SessionForm', () => {
     // Fill wine name
     await userEvent.type(screen.getByPlaceholderText(/château margaux 2015/i), 'Château Test');
 
-    // Fill correct answers
-    const correctAnswerInputs = screen.getAllByPlaceholderText(/correct answer/i);
-    for (const input of correctAnswerInputs) {
-      await userEvent.type(input, 'Answer');
-    }
-
-    // Fill any blank distractor fields (grape_variety has no defaults)
-    const distractorInputs1 = screen.getAllByPlaceholderText('Distractor 1');
-    const distractorInputs2 = screen.getAllByPlaceholderText('Distractor 2');
-    const distractorInputs3 = screen.getAllByPlaceholderText('Distractor 3');
-    for (const input of [...distractorInputs1, ...distractorInputs2, ...distractorInputs3]) {
-      if ((input as HTMLInputElement).value === '') {
-        await userEvent.type(input, 'Option');
-      }
-    }
-
+    // All inputs already have defaults — just submit
     fireEvent.click(screen.getByRole('button', { name: /create session/i }));
     expect(onSubmit).toHaveBeenCalledOnce();
     const payload = onSubmit.mock.calls[0][0];

@@ -1,13 +1,18 @@
 import type { Config } from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
+// DOCS_BASE_URL controls the base path:
+//   - Docker / local dev: set to "/" (default) — docs served directly at localhost:3002/
+//   - Production Cloudflare: set to "/docs/" — served via proxy worker at your-domain/docs/
+const baseUrl = process.env.DOCS_BASE_URL ?? '/';
+
 const config: Config = {
   title: 'Sommelier Arena',
   tagline: 'Real-time blind wine tasting quiz — developer docs',
   favicon: 'img/favicon.ico',
 
   url: 'https://sommelier-arena.ducatillon.net',
-  baseUrl: '/docs/',
+  baseUrl,
 
   onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',

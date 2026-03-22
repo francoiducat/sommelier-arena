@@ -9,13 +9,21 @@ const CATEGORIES: { key: QuestionCategory; label: string }[] = [
   { key: 'wine_name', label: 'Wine Name' },
 ];
 
-// Autocomplete defaults per category (correct answer always left blank)
-const DISTRACTOR_DEFAULTS: Partial<Record<QuestionCategory, [string, string, string]>> = {
+// Autocomplete defaults per category — host edits to match their actual wine
+const DISTRACTOR_DEFAULTS: Record<QuestionCategory, [string, string, string]> = {
   color: ['Rouge', 'Blanc', 'Rosé'],
   country: ['Bordeaux (France)', 'Burgundy (France)', 'Tuscany (Italy)'],
+  grape_variety: ['Pinot Noir', 'Syrah', 'Merlot'],
   vintage_year: ['2015', '2016', '2018'],
   wine_name: ['Château Margaux', 'Château Lafite Rothschild', 'Château Latour'],
-  // grape_variety: no defaults — host fills manually
+};
+
+const CORRECT_ANSWER_DEFAULTS: Record<QuestionCategory, string> = {
+  color: 'Rouge',
+  country: 'Bordeaux (France)',
+  grape_variety: 'Cabernet Sauvignon',
+  vintage_year: '2019',
+  wine_name: 'Château Margaux',
 };
 
 interface QuestionFormData {
@@ -37,8 +45,8 @@ function emptyWine(): WineFormData {
       CATEGORIES.map(({ key }) => [
         key,
         {
-          correctAnswer: '',
-          distractors: (DISTRACTOR_DEFAULTS[key] ?? ['', '', '']) as [string, string, string],
+          correctAnswer: CORRECT_ANSWER_DEFAULTS[key],
+          distractors: DISTRACTOR_DEFAULTS[key],
         },
       ]),
     ) as WineQuestions,

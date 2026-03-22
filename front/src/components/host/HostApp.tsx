@@ -54,6 +54,15 @@ export function HostApp() {
     useHostStore.getState().setPhase('dashboard');
   }, []);
 
+  const handleNewSession = () => {
+    // Generate a 4-digit code and set it now so useHostSocket can connect
+    // before the form is submitted — without a code the socket never opens
+    // and create_session would be silently dropped.
+    const newCode = String(Math.floor(1000 + Math.random() * 9000));
+    useHostStore.getState().setCode(newCode);
+    useHostStore.getState().setPhase('setup');
+  };
+
   if (phase === 'dashboard') {
     return (
       <div className="min-h-screen bg-slate-50">
@@ -71,7 +80,7 @@ export function HostApp() {
               useHostStore.getState().setPhase('finalLeaderboard');
             }
           }}
-          onNewSession={() => useHostStore.getState().setPhase('setup')}
+          onNewSession={handleNewSession}
         />
       </div>
     );

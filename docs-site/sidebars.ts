@@ -22,6 +22,7 @@ const sidebars: SidebarsConfig = {
       items: [
         'architecture',
         'tech-stack',
+        'networking',
         'event-reference',
         'data-persistence',
         'host-identity',
