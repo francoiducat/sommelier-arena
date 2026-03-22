@@ -52,11 +52,11 @@ export default defineConfig({
     },
   ],
 
-  // Poll /health so the suite fails fast with a clear message when Docker is not running.
+  // Poll PartyKit so the suite fails fast with a clear message when Docker is not running.
   // Pass an empty command so Playwright only polls — user must start Docker manually.
   webServer: {
     command: '',
-    url: 'http://localhost:3001/health',
+    url: 'http://localhost:1999/',
     reuseExistingServer: true,
     timeout: 10_000,
   },

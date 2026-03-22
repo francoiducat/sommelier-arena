@@ -1,0 +1,181 @@
+/**
+ * Tests for features new in v2.0 (PartyKit migration).
+ * Tags: @smoke, @full
+ */
+import { test, expect, type Browser } from '@playwright/test';
+
+// ── Helper: fill and submit a session form ────────────────────────────────────
+
+async function createSession(browser: Browser) {
+  const ctx = await browser.newContext();
+  const page = await ctx.newPage();
+  await page.goto('/host');
+
+  // Dashboard phase — click New Session
+  const newSessionBtn = page.getByRole('button', { name: /new session/i });
+  if (await newSessionBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+    await newSessionBtn.click();
+  }
+  await expect(page.getByRole('button', { name: /create session/i })).toBeVisible();
+
+  await page.getByLabel('Wine name').fill('Test Wine v2');
+
+  // Fill all 5 categories
+  for (const [label, correct] of [
+    ['Color', 'Red'],
+    ['Country', 'France'],
+    ['Grape Variety', 'Merlot'],
+    ['Vintage Year', '2018'],
+    ['Wine Name', 'Test Wine v2 2018'],
+  ]) {
+    await page.getByLabel(`Wine 1 ${label} — correct answer`).fill(correct);
+  }
+
+  // Fill grape variety distractors (no defaults)
+  await page.getByLabel('Wine 1 Grape Variety — distractor 1').fill('Cabernet');
+  await page.getByLabel('Wine 1 Grape Variety — distractor 2').fill('Syrah');
+  await page.getByLabel('Wine 1 Grape Variety — distractor 3').fill('Pinot');
+
+  // Fill wine name distractors (defaults exist but override for clarity)
+  await page.getByLabel('Wine 1 Wine Name — distractor 1').fill('Château Margaux');
+  await page.getByLabel('Wine 1 Wine Name — distractor 2').fill('Château Lafite');
+  await page.getByLabel('Wine 1 Wine Name — distractor 3').fill('Château Latour');
+
+  await page.getByRole('button', { name: /create session/i }).click();
+
+  const codeEl = page.getByText(/^\d{4}$/);
+  await expect(codeEl).toBeVisible();
+  const code = ((await codeEl.textContent()) ?? '').trim();
+
+  return { page, ctx, code };
+}
+
+// ── Tests ─────────────────────────────────────────────────────────────────────
+
+test.describe('New features (v2.0)', () => {
+  test('Host dashboard shows at /host before session creation @smoke', async ({ page }) => {
+    await page.goto('/host');
+    await test.step('Dashboard heading or Sommelier Arena branding is visible', async () => {
+      await expect(page.getByRole('heading', { name: /sommelier arena/i })).toBeVisible();
+    });
+    await test.step('New Session button is present', async () => {
+      await expect(page.getByRole('button', { name: /new session/i })).toBeVisible();
+    });
+  });
+
+  test('Host ID is displayed on dashboard @smoke', async ({ page }) => {
+    await page.goto('/host');
+    // Host ID is in ADJECTIVE-NOUN format
+    await test.step('Host ID matches Adjective-NOUN pattern', async () => {
+      const hostIdText = page.getByText(/^[A-Z]+-[A-Z]+$/);
+      await expect(hostIdText).toBeVisible();
+    });
+  });
+
+  test('Session form has wine_name category @smoke', async ({ page }) => {
+    await page.goto('/host');
+    const newSessionBtn = page.getByRole('button', { name: /new session/i });
+    if (await newSessionBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await newSessionBtn.click();
+    }
+    await expect(page.getByText('Wine Name')).toBeVisible();
+  });
+
+  test('Session form has timer slider @smoke', async ({ page }) => {
+    await page.goto('/host');
+    const newSessionBtn = page.getByRole('button', { name: /new session/i });
+    if (await newSessionBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await newSessionBtn.click();
+    }
+    const slider = page.getByRole('slider', { name: /timer/i });
+    await expect(slider).toBeVisible();
+    await expect(slider).toHaveValue('60');
+  });
+
+  test('SessionCreated component shows share buttons after creation @full', async ({ browser }) => {
+    const { page } = await createSession(browser);
+
+    await test.step('Share link section visible', async () => {
+      await expect(page.getByRole('button', { name: /copy link/i })).toBeVisible();
+      await expect(page.getByRole('link', { name: /whatsapp/i })).toBeVisible();
+    });
+  });
+
+  test('Participant can join and see lobby @full', async ({ browser }) => {
+    const { code } = await createSession(browser);
+
+    const participantCtx = await browser.newContext();
+    const participantPage = await participantCtx.newPage();
+
+    await participantPage.goto('/play');
+    await participantPage.getByLabel(/session code/i).fill(code);
+    await participantPage.getByRole('button', { name: /join/i }).click();
+
+    await test.step('Participant enters waiting lobby', async () => {
+      await expect(participantPage.getByText(/waiting/i)).toBeVisible({ timeout: 10_000 });
+    });
+
+    await participantCtx.close();
+  });
+
+  test('Question view shows 2x2 option grid @full', async ({ browser }) => {
+    const { page: hostPage, code } = await createSession(browser);
+
+    const participantCtx = await browser.newContext();
+    const participantPage = await participantCtx.newPage();
+
+    await participantPage.goto('/play');
+    await participantPage.getByLabel(/session code/i).fill(code);
+    await participantPage.getByRole('button', { name: /join/i }).click();
+    await expect(participantPage.getByText(/waiting/i)).toBeVisible({ timeout: 10_000 });
+
+    // Host starts game
+    await hostPage.getByRole('button', { name: /start game/i }).click();
+
+    await test.step('Participant sees 4 answer buttons in 2x2 grid', async () => {
+      const buttons = participantPage.getByRole('button').filter({ hasNotText: /join|start|reveal|next|pause|resume|end/i });
+      await expect(buttons).toHaveCount(4, { timeout: 10_000 });
+
+      // Verify 2x2 grid class
+      const grid = participantPage.locator('.grid-cols-2');
+      await expect(grid).toBeVisible();
+    });
+
+    await participantCtx.close();
+  });
+
+  test('Participant can change answer before reveal @full', async ({ browser }) => {
+    const { page: hostPage, code } = await createSession(browser);
+
+    const participantCtx = await browser.newContext();
+    const participantPage = await participantCtx.newPage();
+
+    await participantPage.goto('/play');
+    await participantPage.getByLabel(/session code/i).fill(code);
+    await participantPage.getByRole('button', { name: /join/i }).click();
+    await expect(participantPage.getByText(/waiting/i)).toBeVisible({ timeout: 10_000 });
+
+    await hostPage.getByRole('button', { name: /start game/i }).click();
+
+    // Wait for question buttons to appear
+    const optionButtons = participantPage.getByRole('button').filter({ has: participantPage.locator('[aria-pressed]') });
+    await expect(optionButtons.first()).toBeVisible({ timeout: 10_000 });
+
+    await test.step('Select first option', async () => {
+      await optionButtons.first().click();
+    });
+
+    await test.step('Select a different option — should not be blocked', async () => {
+      const allOptions = await optionButtons.all();
+      if (allOptions.length > 1) {
+        await allOptions[1].click();
+        // Second button should now have aria-pressed=true
+        await expect(allOptions[1]).toHaveAttribute('aria-pressed', 'true');
+        // First should no longer be pressed
+        await expect(allOptions[0]).toHaveAttribute('aria-pressed', 'false');
+      }
+    });
+
+    await participantCtx.close();
+  });
+});

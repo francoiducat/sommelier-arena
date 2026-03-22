@@ -6,8 +6,8 @@ const config: Config = {
   tagline: 'Real-time blind wine tasting quiz — developer docs',
   favicon: 'img/favicon.ico',
 
-  url: 'http://localhost',
-  baseUrl: '/',
+  url: 'https://sommelier-arena.ducatillon.net',
+  baseUrl: '/docs/',
 
   onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
@@ -24,6 +24,18 @@ const config: Config = {
         docs: {
           sidebarPath: './sidebars.ts',
           routeBasePath: '/',
+          lastVersion: 'current',
+          versions: {
+            current: {
+              label: '2.0 PartyKit',
+              path: '/',
+            },
+            '1.0-nestjs': {
+              label: '1.0 NestJS (legacy)',
+              path: '/v1',
+              banner: 'unmaintained',
+            },
+          },
         },
         blog: false,
         theme: {
@@ -42,6 +54,10 @@ const config: Config = {
           sidebarId: 'docs',
           position: 'left',
           label: 'Docs',
+        },
+        {
+          type: 'docsVersionDropdown',
+          position: 'right',
         },
       ],
     },

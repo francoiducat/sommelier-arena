@@ -1,15 +1,4 @@
 import { test, expect } from '@playwright/test';
-import { io } from 'socket.io-client';
-
-/** Returns true when a Socket.IO connection succeeds within `timeoutMs`. */
-function socketConnects(url: string, timeoutMs = 5_000): Promise<boolean> {
-  return new Promise((resolve) => {
-    const socket = io(url, { transports: ['websocket'], reconnection: false, timeout: timeoutMs });
-    const timer = setTimeout(() => { socket.disconnect(); resolve(false); }, timeoutMs);
-    socket.on('connect', () => { clearTimeout(timer); socket.disconnect(); resolve(true); });
-    socket.on('connect_error', () => { clearTimeout(timer); resolve(false); });
-  });
-}
 
 // Reusable helper: fill in a minimal valid session (1 wine, all fields)
 async function fillMinimalSession(page: import('@playwright/test').Page) {
@@ -38,27 +27,27 @@ async function fillMinimalSession(page: import('@playwright/test').Page) {
   await page.getByLabel('Wine 1 Vintage Year — distractor 1').fill('2015');
   await page.getByLabel('Wine 1 Vintage Year — distractor 2').fill('2019');
   await page.getByLabel('Wine 1 Vintage Year — distractor 3').fill('2020');
+
+  // Wine name question
+  await page.getByLabel('Wine 1 Wine Name — correct answer').fill('Château Test 2018');
+  await page.getByLabel('Wine 1 Wine Name — distractor 1').fill('Château Margaux');
+  await page.getByLabel('Wine 1 Wine Name — distractor 2').fill('Château Lafite');
+  await page.getByLabel('Wine 1 Wine Name — distractor 3').fill('Château Latour');
 }
 
 test.describe('Host Session', () => {
-  test.beforeAll(async () => {
-    const reachable = await socketConnects('http://localhost:3000');
-    if (!reachable) {
-      test.skip(
-        true,
-        'Socket.IO not reachable via nginx proxy (http://localhost:3000). ' +
-          'Run `docker-compose up --build -d` and wait until back is healthy.',
-      );
-    }
-  });
-
   test.beforeEach(async ({ page }) => {
     await page.goto('/host');
-    // Wait for the React app to hydrate
+    // After dashboard loads, click New Session to get to the form
+    const newSessionBtn = page.getByRole('button', { name: /new session/i });
+    if (await newSessionBtn.isVisible()) {
+      await newSessionBtn.click();
+    }
+    // Wait for the React app to hydrate and show the form
     await expect(page.getByRole('button', { name: /create session/i })).toBeVisible();
   });
 
-  test('Host Session - happy path creates session and shows 4-digit code', async ({ page }) => {
+  test('Host Session - happy path creates session and shows 4-digit code @smoke', async ({ page }) => {
     await test.step('Fill in session form', async () => {
       await fillMinimalSession(page);
     });
@@ -68,15 +57,13 @@ test.describe('Host Session', () => {
     });
 
     await test.step('Lobby shows a 4-digit session code', async () => {
-      // The code is displayed as a status region or visible text
       const codeText = page.getByText(/^\d{4}$/);
       await expect(codeText).toBeVisible();
     });
   });
 
-  test('Host Session - boundary: submit with empty wine name shows error', async ({ page }) => {
+  test('Host Session - boundary: submit with empty wine name shows error @smoke', async ({ page }) => {
     await test.step('Leave wine name empty and submit', async () => {
-      // Fill everything except the wine name
       await page.getByLabel('Wine 1 Color — correct answer').fill('Red');
       await page.getByRole('button', { name: /create session/i }).click();
     });
@@ -86,7 +73,7 @@ test.describe('Host Session', () => {
     });
   });
 
-  test('Host Session - boundary: submit with empty correct answer shows error', async ({ page }) => {
+  test('Host Session - boundary: submit with empty correct answer shows error @smoke', async ({ page }) => {
     await test.step('Fill wine name but leave correct answer empty', async () => {
       await page.getByLabel('Wine name').fill('Test Wine');
       await page.getByRole('button', { name: /create session/i }).click();

@@ -1,0 +1,12 @@
+{
+  "name": "sommelier-arena",
+  "parties": {
+    "game": "party/game.ts"
+  },
+  "kv": [
+    {
+      "binding": "HOSTS_KV",
+      "id": "YOUR_KV_NAMESPACE_ID"
+    }
+  ]
+}

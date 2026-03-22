@@ -1,4 +1,46 @@
 services:
+  # ── Mode B: full-stack with PartyKit ─────────────────────────────────────────
+  # Run with: docker-compose --profile full up --build
+  # For daily dev (Mode A), use: npx partykit dev + cd front && npm run dev
+
+  partykit:
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: npx partykit dev --port 1999
+    ports:
+      - '1999:1999'
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:1999/"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 15s
+    profiles: [full]
+
+  front:
+    build:
+      context: ./front
+    ports:
+      - '3000:3000'
+      - '80:3000'    # also serve on port 80 so browsers with a cached
+                     # redirect to http://localhost/host/ still land correctly
+    environment:
+      PUBLIC_PARTYKIT_HOST: localhost:1999
+    depends_on:
+      partykit:
+        condition: service_healthy
+    profiles: [full]
+
+  docs:
+    build:
+      context: ./docs-site
+    ports:
+      - '3002:80'
+    profiles: [full]
+
+  # ── Legacy Mode B: NestJS (kept for reference, not default) ──────────────────
   back:
     build:
       context: ./back
@@ -12,20 +54,5 @@ services:
       timeout: 3s
       retries: 10
       start_period: 15s
+    profiles: [nestjs]
 
-  front:
-    build:
-      context: ./front
-    ports:
-      - '3000:3000'
-      - '80:3000'    # also serve on port 80 so browsers with a cached
-                     # redirect to http://localhost/host/ still land correctly
-    depends_on:
-      back:
-        condition: service_healthy
-
-  docs:
-    build:
-      context: ./docs-site
-    ports:
-      - '3002:80'

@@ -1,21 +1,29 @@
 import React, { useState } from 'react';
-import type { CreateSessionPayload, CreateWinePayload } from '../../types/events';
+import type { CreateSessionPayload, CreateWinePayload, QuestionCategory } from '../../types/events';
 
-const CATEGORIES = [
+const CATEGORIES: { key: QuestionCategory; label: string }[] = [
   { key: 'color', label: 'Color' },
   { key: 'country', label: 'Country' },
   { key: 'grape_variety', label: 'Grape Variety' },
   { key: 'vintage_year', label: 'Vintage Year' },
-] as const;
+  { key: 'wine_name', label: 'Wine Name' },
+];
 
-type CategoryKey = (typeof CATEGORIES)[number]['key'];
+// Autocomplete defaults per category (correct answer always left blank)
+const DISTRACTOR_DEFAULTS: Partial<Record<QuestionCategory, [string, string, string]>> = {
+  color: ['Rouge', 'Blanc', 'Rosé'],
+  country: ['Bordeaux (France)', 'Burgundy (France)', 'Tuscany (Italy)'],
+  vintage_year: ['2015', '2016', '2018'],
+  wine_name: ['Château Margaux', 'Château Lafite Rothschild', 'Château Latour'],
+  // grape_variety: no defaults — host fills manually
+};
 
 interface QuestionFormData {
   correctAnswer: string;
   distractors: [string, string, string];
 }
 
-type WineQuestions = Record<CategoryKey, QuestionFormData>;
+type WineQuestions = Record<QuestionCategory, QuestionFormData>;
 
 interface WineFormData {
   name: string;
@@ -25,21 +33,26 @@ interface WineFormData {
 function emptyWine(): WineFormData {
   return {
     name: '',
-    questions: {
-      color: { correctAnswer: '', distractors: ['', '', ''] },
-      country: { correctAnswer: '', distractors: ['', '', ''] },
-      grape_variety: { correctAnswer: '', distractors: ['', '', ''] },
-      vintage_year: { correctAnswer: '', distractors: ['', '', ''] },
-    },
+    questions: Object.fromEntries(
+      CATEGORIES.map(({ key }) => [
+        key,
+        {
+          correctAnswer: '',
+          distractors: (DISTRACTOR_DEFAULTS[key] ?? ['', '', '']) as [string, string, string],
+        },
+      ]),
+    ) as WineQuestions,
   };
 }
 
 interface SessionFormProps {
   onSubmit: (payload: CreateSessionPayload) => void;
+  hostId?: string;
 }
 
-export function SessionForm({ onSubmit }: SessionFormProps) {
+export function SessionForm({ onSubmit, hostId }: SessionFormProps) {
   const [wines, setWines] = useState<WineFormData[]>([emptyWine()]);
+  const [timerSeconds, setTimerSeconds] = useState(60);
   const [error, setError] = useState<string | null>(null);
 
   const updateWineName = (wi: number, value: string) => {
@@ -52,7 +65,7 @@ export function SessionForm({ onSubmit }: SessionFormProps) {
 
   const updateAnswer = (
     wi: number,
-    cat: CategoryKey,
+    cat: QuestionCategory,
     field: 'correctAnswer' | number,
     value: string,
   ) => {
@@ -64,7 +77,7 @@ export function SessionForm({ onSubmit }: SessionFormProps) {
         q.correctAnswer = value;
       } else {
         const distractors = [...q.distractors] as [string, string, string];
-        distractors[field] = value;
+        distractors[field as number] = value;
         q.distractors = distractors;
       }
       wine.questions = { ...wine.questions, [cat]: q };
@@ -74,7 +87,6 @@ export function SessionForm({ onSubmit }: SessionFormProps) {
   };
 
   const addWine = () => setWines((prev) => [...prev, emptyWine()]);
-
   const removeWine = (wi: number) =>
     setWines((prev) => prev.filter((_, i) => i !== wi));
 
@@ -95,9 +107,7 @@ export function SessionForm({ onSubmit }: SessionFormProps) {
         }
         for (const [di, d] of q.distractors.entries()) {
           if (!d.trim()) {
-            setError(
-              `Wine ${wi + 1} — ${cat.label}: distractor ${di + 1} is required.`,
-            );
+            setError(`Wine ${wi + 1} — ${cat.label}: distractor ${di + 1} is required.`);
             return;
           }
         }
@@ -117,6 +127,9 @@ export function SessionForm({ onSubmit }: SessionFormProps) {
           })),
         }),
       ),
+      timerSeconds,
+      hostId: hostId ?? '',
+      title: wines[0]?.name.trim(),
     };
 
     onSubmit(payload);
@@ -129,12 +142,36 @@ export function SessionForm({ onSubmit }: SessionFormProps) {
         <p className="text-slate-500 mt-1">Add wines and fill in the answers for each question.</p>
       </div>
 
+      {/* Timer slider */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3">
+        <label htmlFor="timer-slider" className="block text-sm font-semibold text-slate-700">
+          Timer per question:{' '}
+          <span className="text-violet-600">{timerSeconds}s</span>
+        </label>
+        <input
+          id="timer-slider"
+          type="range"
+          min={15}
+          max={120}
+          step={5}
+          value={timerSeconds}
+          onChange={(e) => setTimerSeconds(Number(e.target.value))}
+          aria-valuemin={15}
+          aria-valuemax={120}
+          aria-valuenow={timerSeconds}
+          aria-valuetext={`${timerSeconds} seconds`}
+          className="w-full accent-violet-600"
+        />
+        <div className="flex justify-between text-xs text-slate-400">
+          <span>15s</span>
+          <span>120s</span>
+        </div>
+      </div>
+
       {wines.map((wine, wi) => (
         <div key={wi} className="bg-white border border-slate-200 rounded-2xl p-5 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="font-semibold text-slate-700 text-lg">
-              Wine {wi + 1}
-            </h2>
+            <h2 className="font-semibold text-slate-700 text-lg">Wine {wi + 1}</h2>
             {wines.length > 1 && (
               <button
                 type="button"
@@ -180,15 +217,11 @@ export function SessionForm({ onSubmit }: SessionFormProps) {
                     id={`wine-${wi}-${cat.key}-correct`}
                     type="text"
                     value={wine.questions[cat.key].correctAnswer}
-                    onChange={(e) =>
-                      updateAnswer(wi, cat.key, 'correctAnswer', e.target.value)
-                    }
+                    onChange={(e) => updateAnswer(wi, cat.key, 'correctAnswer', e.target.value)}
                     placeholder="Correct answer"
                     className="w-full border border-emerald-300 bg-emerald-50 rounded-lg px-3 py-2 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-400"
                   />
-                  <span className="absolute right-2 top-2 text-xs text-emerald-600 font-medium" aria-hidden="true">
-                    ✓
-                  </span>
+                  <span className="absolute right-2 top-2 text-xs text-emerald-600 font-medium" aria-hidden="true">✓</span>
                 </div>
                 {wine.questions[cat.key].distractors.map((d, di) => (
                   <div key={di}>
@@ -202,9 +235,7 @@ export function SessionForm({ onSubmit }: SessionFormProps) {
                       id={`wine-${wi}-${cat.key}-distractor-${di}`}
                       type="text"
                       value={d}
-                      onChange={(e) =>
-                        updateAnswer(wi, cat.key, di, e.target.value)
-                      }
+                      onChange={(e) => updateAnswer(wi, cat.key, di, e.target.value)}
                       placeholder={`Distractor ${di + 1}`}
                       className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-400"
                     />
@@ -238,3 +269,4 @@ export function SessionForm({ onSubmit }: SessionFormProps) {
     </form>
   );
 }
+

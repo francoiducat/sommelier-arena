@@ -51,10 +51,10 @@ test.describe('Mobile UX', () => {
   });
 
   test('Join flow completes on mobile viewport @mobile', async ({ page }) => {
-    // We need a real session to join — skip gracefully if backend is unavailable
-    const healthRes = await page.request.get('http://localhost:3001/health').catch(() => null);
-    if (!healthRes || healthRes.status() !== 200) {
-      test.skip(true, 'Backend not reachable — skipping mobile join flow');
+    // We need a real session to join — skip gracefully if PartyKit is unavailable
+    const partyRes = await page.request.get('http://localhost:1999/').catch(() => null);
+    if (!partyRes || partyRes.status() >= 500) {
+      test.skip(true, 'PartyKit not reachable — skipping mobile join flow');
     }
 
     await page.goto('/play');

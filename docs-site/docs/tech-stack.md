@@ -1,23 +1,42 @@
 ---
 id: tech-stack
 title: "Tech Stack & Principles"
+sidebar_label: Tech Stack
 ---
 
-# Tech Stack & Principles
+# Tech Stack
 
-## Stack
+## Production stack (v2.0 PartyKit)
 
-- **Frontend**: Astro + React components; lightweight UI with Zustand for local state.
-- **Backend**: NestJS with a Socket.IO gateway for real-time messaging.
-- **Realtime**: Socket.IO (WebSocket with HTTP long-polling fallback).
-- **Persistence**: Ephemeral only — client-side Zustand/localStorage. No server-side persistence, no session export/import for MVP.
-- **DB**: No database required for MVP. If persistence is added post-MVP, Postgres is the preferred choice.
+| Layer | Technology | Notes |
+|-------|-----------|-------|
+| Frontend | **Astro 5** (static) + **React 19** islands | Zero JS by default; interactivity only where needed |
+| Styling | **Tailwind CSS v4** | Utility-first; no design system dependency |
+| State | **Zustand** | One store each for host and participant |
+| WebSockets | **PartySocket** (`partysocket`) | Drop-in wrapper with auto-reconnect |
+| Backend | **PartyKit** (Cloudflare Workers + Durable Objects) | One DO instance per game session |
+| Persistence | **Durable Object storage** (SQLite-backed) | Game state survives DO eviction |
+| Session index | **Cloudflare KV** (`SOMMELIER_HOSTS` namespace) | Maps `host:{id}` → list of session codes |
+| DNS + TLS | **Cloudflare** (`ducatillon.net`) | Managed; zero cert renewal |
+| Docs proxy | **Cloudflare Worker** (`proxy-worker/index.ts`) | Routes `/docs/*` to Docusaurus Pages project |
 
-## Principles
+## Design principles
 
-- Keep MVP simple — no auth, no database, no infrastructure beyond the two services.
-- Separation of concerns: frontend owns UI state (Zustand); backend owns session/game state and broadcasts via Socket.IO.
-- Business rules (scoring, timer, question flow) live in the backend and are not duplicated on the client.
-- Testability: business rules decoupled from transport layer.
-- Single Responsibility Principle
-- 80% coverage for Unit tests. test arbo mirrors the code app.
+1. **No server to maintain** — Durable Objects are managed infrastructure; no VMs, no Docker in production.
+2. **€0/month** — Cloudflare free tier covers all traffic for a casual dinner-party app.
+3. **Islands architecture** — Astro renders everything at build time; React hydrated only for the game UI.
+4. **State machine discipline** — All business logic in `party/game.ts`. The frontend projects server state.
+5. **Single source of truth** — Session state is DO built-in storage. No database, no ORM.
+
+## Legacy stack (v1.0 NestJS — preserved in `back/`)
+
+The `back/` NestJS service is kept on the branch for Docker Mode B integration testing (`--profile nestjs`). It is **not** the production backend.
+
+## Why PartyKit over plain Durable Objects?
+
+| Concern | Plain DO | PartyKit |
+|---------|----------|----------|
+| WebSocket fan-out | Manual `this.state.getWebSockets()` | `this.room.broadcast()` |
+| Local dev | `wrangler dev` (requires auth) | `npx partykit dev` (no auth) |
+| Deploy | `wrangler deploy` | `npx partykit deploy` |
+| Free tier | Yes | Yes |

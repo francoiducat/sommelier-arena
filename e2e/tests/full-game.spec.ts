@@ -7,6 +7,12 @@ async function hostCreateSession(browser: Browser) {
   const hostCtx = await browser.newContext();
   const hostPage = await hostCtx.newPage();
   await hostPage.goto('/host');
+
+  // New dashboard phase — click New Session to get to the form
+  const newSessionBtn = hostPage.getByRole('button', { name: /new session/i });
+  if (await newSessionBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+    await newSessionBtn.click();
+  }
   await expect(hostPage.getByRole('button', { name: /create session/i })).toBeVisible();
 
   // Wine name
@@ -35,6 +41,12 @@ async function hostCreateSession(browser: Browser) {
   await hostPage.getByLabel('Wine 1 Vintage Year — distractor 1').fill('2015');
   await hostPage.getByLabel('Wine 1 Vintage Year — distractor 2').fill('2019');
   await hostPage.getByLabel('Wine 1 Vintage Year — distractor 3').fill('2020');
+
+  // Wine name (new category in v2)
+  await hostPage.getByLabel('Wine 1 Wine Name — correct answer').fill('Grand Cru Test 2018');
+  await hostPage.getByLabel('Wine 1 Wine Name — distractor 1').fill('Château Margaux');
+  await hostPage.getByLabel('Wine 1 Wine Name — distractor 2').fill('Château Lafite');
+  await hostPage.getByLabel('Wine 1 Wine Name — distractor 3').fill('Château Latour');
 
   await hostPage.getByRole('button', { name: /create session/i }).click();
 

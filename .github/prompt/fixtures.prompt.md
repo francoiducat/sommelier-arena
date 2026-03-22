@@ -1,65 +1,86 @@
-# Features
+# Project Goal
 
-## Leaderboard
+The primary goal is to enhance the Sommelier Arena application, a web-based wine tasting game. The application should be deployable to a live environment for free, allowing users to play with friends. One user acts as the host, setting up a session in advance and sharing a session code with participants.
 
-As a participant, after each question I want to see a leaderboard with the top 10 participants and their scores, so that I can track my progress and compare it with others.
+This plan outlines the required features, improvements, documentation updates, and deployment requirements to move from a local-only MVP to a shareable, more robust application.
 
-## Host questions
+# Core Gameplay Enhancements
 
-For the question: What is the color of this wine?
-Answers should be autocompleted with A. Rouge, B. Blanc, C. Rosé, D. Orange.
-Host can still override the answers if they want to, but these should be the default options for this question.
+### 1. Pre-defined Answer Options
+For certain questions, provide default, autocompleted answers. The host should be able to override these defaults.
 
-For the question: What is the country of origin of this wine?
-Change it to:
-Which country or region might this wine come from?
-Answers should be autocompleted with A. Bordeaux (France), B. Burgundy (France), C. Loire Valley (France), D. Tuscany (Italy).
-Host can still override the answers if they want to, but these should be the default options for this question.
+-   **Question**: "What is the color of this wine?"
+    -   **Default Answers**: A. Rouge, B. Blanc, C. Rosé, D. Orange.
 
-For the question: What is the vintage year of this wine?
-Answers should be autocompleted with A. 2015, B. 2016, C. 2017, D. 2018.
-Host can still override the answers if they want to, but these should be the default options for this question.
+-   **Question**: "Which country or region might this wine come from?" (Update from "What is the country of origin of this wine?")
+    -   **Default Answers**: A. Bordeaux (France), B. Burgundy (France), C. Loire Valley (France), D. Tuscany (Italy).
 
-Add one question: What is the name of the wine?
-Answers should be autocompleted with A. Château Margaux, B. Domaine de la Romanée-Conti, C. Château Lafite Rothschild, D. Château Latour.
-Host can still override the answers if they want to, but these should be the default options for this question.
+-   **Question**: "What is the vintage year of this wine?"
+    -   **Default Answers**: A. 2015, B. 2016, C. 2017, D. 2018.
 
-# Improvements:
+-   **New Question**: "What is the name of the wine?"
+    -   **Default Answers**: A. Château Margaux, B. Domaine de la Romanée-Conti, C. Château Lafite Rothschild, D. Château Latour.
 
-## Randomize the order of questions presented to participants.
+### 2. Randomize Question and Answer Order
+-   **Current State**: The correct answer is always option A.
+-   **Requirement**: The order of answers for each question should be randomized for participants to ensure fairness.
 
-For the moment the correct answer is always the first one A.
-Expected: Questions should be presented in random order to participants. 
+### 3. Persistent Scores and Leaderboard
+-   **Current State**: Scores and the leaderboard reset after each round.
+-   **Requirement**: Scores and the leaderboard must persist across all rounds within a session, allowing participants to track their cumulative progress.
 
-## Persistence of scores and leaderboard
+### 4. Participant Session Persistence
+-   **Current State**: Participants lose all progress if they refresh or close their browser.
+-   **Requirement**: Implement session management (e.g., using local storage or cookies) to retain a participant's state (name, score, progress) if they disconnect and reconnect to the same session.
 
-Currently, scores and leaderboard are reset after each round. Expected: Scores and leaderboard should persist across rounds, allowing participants to track their progress over time.
+### 5. Flexible Answer Submission
+-   **Current State**: An answer is final once selected.
+-   **Requirement**: Allow participants to change their selected answer at any time before the timer for the current question runs out.
 
-## Session management for participants
+# New Host Features
 
-Currently, when a participants closes its browser or refreshes the page, they lose everything and must start from scratch. Expected: Implement session management for participants, allowing them to retain their scores and progress even if they close the browser or refresh the page.
+### 1. Configurable Timer
+-   **Requirement**: As a host, I want to set the duration for the question timer before starting a session. This allows me to control the game's pace.
 
-## Answer validation
+### 2. Session Management
+-   **Requirement**: As a host, I need to be able to create and manage multiple game sessions.
+-   **Details**:
+    -   A host should see a list of all sessions they have created.
+    -   The list should display session details (e.g., name, creation date, number of participants, final leaderboard).
+    -   The host should have the ability to delete old or unwanted sessions.
 
-Currently, as soon as a participant selects an answer, he cannot change it.
-Expected: Allow participants to change their answer until the timer ends, giving them the opportunity to reconsider their choice.
+# New Participant Features
 
-## Timer management
+### 1. Post-Session Summary and Replay
+-   **Requirement**: After a session ends, participants should see a performance summary.
+-   **Details**:
+    -   The summary should include their final score, rank, and a list of questions with their answers marked as correct or incorrect.
+    -   Add a "Play Again" button that allows them to easily join a new session.
 
-As a host I want to be able to set the length ot the timer for all questions, so that I can control the pace of the game and make it more engaging for participants.
+# Documentation and Terminology
 
-## Session/Quiz management
+### 1. Create a Glossary
+-   **Requirement**: Add a glossary to the documentation site.
+-   **Content**: Define key terms used in the app (e.g., Session, Round, Question, Answer, Score, Leaderboard) to help new users.
 
-As a host I want to be able to create and manage multiple sessions/quizzes, so that I can organize different games for different groups of participants.
+### 2. Standardize Terminology
+-   **Requirement**: Use consistent terminology throughout the application UI, backend code, and documentation.
+-   **Decision**: Standardize on the term **"session"** instead of "quiz".
 
-As a host I should be able to see all the sessions/quizzes I have created, along with their details (name, date created, number of participants, leaderboard etc.) and be able to delete them if I want to.
+### 3. Update README.md
+-   **Requirement**: Revise the main `README.md` file to provide a comprehensive and up-to-date overview of the project, its features, and instructions for local setup and usage.
 
-## Performance summary and replay option for participants
+# Deployment and Infrastructure
 
-As a participant, once a session/quiz has ended, I want to be able to see a summary of my performance, including the questions I got right and wrong, my final score, and how I ranked on the leaderboard. I cant also join another session/quiz if I want to with some kind of "Play again" button, so that I can continue to enjoy the game and improve my knowledge.
+### 1. Hosting Environment
+-   **Requirement**: The application must be deployable to a live, public URL.
+-   **Constraint**: The hosting solution must be **100% free**.
+-   **Target URL**: `sommelier-arena.ducatillon.net` (DNS is managed via Cloudflare).
+-   **Suggested Providers**: Vercel, Netlify, Cloudflare Pages, or other free-tier services.
 
-# Docs
+### 2. Local Development
+-   **Requirement**: It must remain possible to run the entire application stack locally for development and beta testing.
+-   **Constraint**: Use Docker and `docker-compose.yml` for local setup.
 
-Add a glossary of web app features and terms for new users to understand the platform better. (round, question, answer, score, leaderboard, session/quizz etc.)
-Ensure two words similar in meaning are not used anymore. Stick to one term for consistency. For example, use "session" instead of "quiz" throughout the documentation and user interface and the backend code.
-
+### 3. Environment Management
+-   **Requirement**: Provide clear explanations and scripts for managing differences between the **local (development)** and **production** environments (e.g., environment variables for API endpoints, database connections).

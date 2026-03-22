@@ -4,6 +4,11 @@ async function setupGameAtQuestion(browser: Browser) {
   const hostCtx = await browser.newContext();
   const hostPage = await hostCtx.newPage();
   await hostPage.goto('/host');
+  // Dashboard phase — click New Session to get to form
+  const newSessionBtn = hostPage.getByRole('button', { name: /new session/i });
+  if (await newSessionBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+    await newSessionBtn.click();
+  }
   await expect(hostPage.getByRole('button', { name: /create session/i })).toBeVisible();
 
   await hostPage.getByLabel('Wine name').fill('Pause Test Wine');

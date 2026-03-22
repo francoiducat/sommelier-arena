@@ -8,31 +8,23 @@
  * Tags: @infra, @smoke
  */
 import { test, expect } from '@playwright/test';
-import { io } from 'socket.io-client';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-/** Attempt a Socket.IO connection and resolve true/false within `timeoutMs`. */
-function socketConnects(url: string, timeoutMs = 5_000): Promise<boolean> {
+/** Attempt a raw WebSocket connection and resolve true/false within timeoutMs. */
+function wsConnects(url: string, timeoutMs = 5_000): Promise<boolean> {
   return new Promise((resolve) => {
-    const socket = io(url, {
-      transports: ['websocket'],
-      reconnection: false,
-      timeout: timeoutMs,
-    });
+    let resolved = false;
     const timer = setTimeout(() => {
-      socket.disconnect();
-      resolve(false);
+      if (!resolved) { resolved = true; ws.close(); resolve(false); }
     }, timeoutMs);
 
-    socket.on('connect', () => {
-      clearTimeout(timer);
-      socket.disconnect();
-      resolve(true);
+    const ws = new WebSocket(url);
+    ws.addEventListener('open', () => {
+      if (!resolved) { resolved = true; clearTimeout(timer); ws.close(); resolve(true); }
     });
-    socket.on('connect_error', () => {
-      clearTimeout(timer);
-      resolve(false);
+    ws.addEventListener('error', () => {
+      if (!resolved) { resolved = true; clearTimeout(timer); resolve(false); }
     });
   });
 }
@@ -40,36 +32,44 @@ function socketConnects(url: string, timeoutMs = 5_000): Promise<boolean> {
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
 test.describe('Infrastructure', () => {
-  test('Backend health endpoint returns status ok @infra @smoke', async ({ request }) => {
-    const res = await request.get('http://localhost:3001/health');
-
+  test('PartyKit dev server responds on port 1999 @infra @smoke', async ({ request }) => {
+    const res = await request.get('http://localhost:1999/');
     expect(
       res.status(),
-      'GET /health must return 200. Is docker-compose up --build running?',
-    ).toBe(200);
-
-    const body = await res.json();
-    expect(body).toMatchObject({ status: 'ok' });
+      'GET http://localhost:1999/ must return 2xx or 4xx (not connection refused). Is docker-compose --profile full up running?',
+    ).toBeLessThan(500);
   });
 
-  test('nginx proxies /socket.io/ polling to backend @infra @smoke', async ({ request }) => {
-    // A minimal Engine.IO handshake — EIO=4 is Socket.IO v4
-    const res = await request.get(
-      'http://localhost:3000/socket.io/?EIO=4&transport=polling',
-    );
-
+  test('Frontend loads on port 3000 @infra @smoke', async ({ page }) => {
+    const res = await page.goto('http://localhost:3000/');
     expect(
-      res.status(),
-      'nginx must proxy /socket.io/ to back:3001. Check nginx.conf resolver + proxy_pass.',
+      res?.status(),
+      'GET http://localhost:3000/ must return 200. Is the front service running?',
     ).toBe(200);
+    await expect(page.getByRole('heading', { name: /sommelier arena/i })).toBeVisible();
   });
 
-  test('WebSocket can connect to backend via nginx proxy @infra @smoke', async () => {
-    const connected = await socketConnects('http://localhost:3000');
-
+  test('PartyKit WebSocket endpoint accepts connections @infra @smoke', async ({ page }) => {
+    // Use page.evaluate to test WebSocket from a browser context
+    const connected = await page.evaluate(async () => {
+      return new Promise<boolean>((resolve) => {
+        const ws = new WebSocket('ws://localhost:1999/parties/game/test-room');
+        const timer = setTimeout(() => { ws.close(); resolve(false); }, 5000);
+        ws.addEventListener('open', () => { clearTimeout(timer); ws.close(); resolve(true); });
+        ws.addEventListener('error', () => { clearTimeout(timer); resolve(false); });
+      });
+    });
     expect(
       connected,
-      'Socket.IO WebSocket connection through nginx proxy must succeed within 5 s.',
+      'WebSocket to PartyKit on ws://localhost:1999/parties/game/test-room must open within 5 s.',
     ).toBe(true);
+  });
+
+  test('Docs site loads on port 3002 @infra @smoke', async ({ request }) => {
+    const res = await request.get('http://localhost:3002/');
+    expect(
+      res.status(),
+      'GET http://localhost:3002/ must return 200. Is the docs service running?',
+    ).toBe(200);
   });
 });

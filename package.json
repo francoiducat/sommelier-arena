@@ -1,0 +1,26 @@
+{
+  "name": "sommelier-arena",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/francoiducat/sommelier-arena.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/francoiducat/sommelier-arena/issues"
+  },
+  "homepage": "https://github.com/francoiducat/sommelier-arena#readme",
+  "private": "true",
+  "devDependencies": {
+    "@types/uuid": "^10.0.0",
+    "partykit": "^0.0.115"
+  },
+  "dependencies": {
+    "partysocket": "^1.1.16",
+    "uuid": "^13.0.0"
+  }
+}
