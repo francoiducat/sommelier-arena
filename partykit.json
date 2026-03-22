@@ -1,12 +1,5 @@
 {
   "name": "sommelier-arena",
-  "parties": {
-    "game": "party/game.ts"
-  },
-  "kv": [
-    {
-      "binding": "HOSTS_KV",
-      "id": "YOUR_KV_NAMESPACE_ID"
-    }
-  ]
+  "main": "back/game.ts",
+  "compatibilityDate": "2026-03-22"
 }

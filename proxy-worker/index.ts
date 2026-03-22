@@ -2,20 +2,26 @@
  * Cloudflare Worker — Sommelier Arena proxy
  *
  * Routes:
- *   /docs/*  → sommelier-arena-docs.pages.dev (Docusaurus static site)
+ *   /docs/*  → DOCS_ORIGIN (Docusaurus static site, default: sommelier-arena-docs.pages.dev)
  *   /*       → pass-through (handled by Cloudflare Pages for the front app)
  *
- * Deploy:
- *   Workers & Pages → Create Worker → paste this file → Deploy
- *   Then add route: sommelier-arena.ducatillon.net/docs* → this worker
+ * Environment variables (set in Cloudflare dashboard or wrangler.toml):
+ *   DOCS_ORIGIN  — origin URL of the Docusaurus Pages project (no trailing slash)
+ *                  Default: https://sommelier-arena-docs.pages.dev
+ *
+ * See proxy-worker/README.md for deployment instructions.
  */
+
+interface Env {
+  DOCS_ORIGIN?: string;
+}
+
 export default {
-  async fetch(request: Request): Promise<Response> {
+  async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
+    const docsOrigin = env.DOCS_ORIGIN ?? 'https://sommelier-arena-docs.pages.dev';
 
     if (url.pathname.startsWith('/docs')) {
-      // Strip /docs prefix and proxy to the docs Pages project
-      const docsOrigin = 'https://sommelier-arena-docs.pages.dev';
       const proxied = new URL(url.pathname, docsOrigin);
       proxied.search = url.search;
 
@@ -33,7 +39,7 @@ export default {
       if (contentType.includes('text/html')) {
         const text = await response.text();
         const rewritten = text.replace(
-          /https:\/\/sommelier-arena-docs\.pages\.dev/g,
+          new RegExp(docsOrigin.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
           `${url.protocol}//${url.host}`,
         );
         return new Response(rewritten, {
@@ -48,4 +54,4 @@ export default {
     // All other routes: pass through to Cloudflare Pages (front app)
     return fetch(request);
   },
-} satisfies ExportedHandler;
+} satisfies ExportedHandler<Env>;

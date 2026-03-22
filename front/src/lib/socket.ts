@@ -14,6 +14,6 @@ export function createSocket(room: string): PartySocket {
   return new PartySocket({
     host: PARTYKIT_HOST,
     room,
-    party: 'game',
+    party: 'main',
   });
 }

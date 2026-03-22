@@ -1,43 +1,13 @@
 {
-  "version-1.0-nestjs/docs": {
-    "label": "1.0 NestJS",
-    "items": [
-      {
-        "type": "doc",
-        "id": "intro"
-      },
-      {
-        "type": "doc",
-        "id": "prd"
-      },
-      {
-        "type": "doc",
-        "id": "overview"
-      },
-      {
-        "type": "doc",
-        "id": "features"
-      },
-      {
-        "type": "doc",
-        "id": "user-stories"
-      },
-      {
-        "type": "doc",
-        "id": "tech-stack"
-      },
-      {
-        "type": "doc",
-        "id": "database-model"
-      },
-      {
-        "type": "doc",
-        "id": "architecture"
-      },
-      {
-        "type": "doc",
-        "id": "quick-start"
-      }
-    ]
-  }
+  "docs": [
+    "intro",
+    "prd",
+    "overview",
+    "features",
+    "user-stories",
+    "tech-stack",
+    "database-model",
+    "architecture",
+    "quick-start"
+  ]
 }

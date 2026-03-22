@@ -3,33 +3,37 @@ services:
   # Run with: docker-compose --profile full up --build
   # For daily dev (Mode A), use: npx partykit dev + cd front && npm run dev
 
-  partykit:
-    image: node:20-alpine
-    working_dir: /app
-    volumes:
-      - .:/app
-    command: npx partykit dev --port 1999
+  back:
+    build:
+      # Build context is the repo root so both partykit.json and back/game.ts
+      # are accessible. The Dockerfile runs npm install inside the Linux container,
+      # avoiding the macOS vs Linux native binary conflict with workerd.
+      context: .
+      dockerfile: back/Dockerfile
     ports:
       - '1999:1999'
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:1999/"]
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:1999/',r=>{process.exit(r.statusCode<500?0:1)}).on('error',()=>process.exit(1))"]
       interval: 5s
-      timeout: 3s
+      timeout: 5s
       retries: 10
-      start_period: 15s
+      start_period: 20s
     profiles: [full]
 
   front:
     build:
       context: ./front
+      args:
+        # PUBLIC_PARTYKIT_HOST is baked into the Astro static build.
+        # The browser connects to localhost:3000 (nginx) which proxies
+        # /parties/ requests to the back container on port 1999.
+        PUBLIC_PARTYKIT_HOST: localhost:3000
     ports:
       - '3000:3000'
       - '80:3000'    # also serve on port 80 so browsers with a cached
                      # redirect to http://localhost/host/ still land correctly
-    environment:
-      PUBLIC_PARTYKIT_HOST: localhost:1999
     depends_on:
-      partykit:
+      back:
         condition: service_healthy
     profiles: [full]
 
@@ -39,20 +43,4 @@ services:
     ports:
       - '3002:80'
     profiles: [full]
-
-  # ── Legacy Mode B: NestJS (kept for reference, not default) ──────────────────
-  back:
-    build:
-      context: ./back
-    ports:
-      - '3001:3001'
-    environment:
-      NODE_ENV: production
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3001/health"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-      start_period: 15s
-    profiles: [nestjs]
 

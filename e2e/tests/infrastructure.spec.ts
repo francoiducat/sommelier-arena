@@ -53,7 +53,7 @@ test.describe('Infrastructure', () => {
     // Use page.evaluate to test WebSocket from a browser context
     const connected = await page.evaluate(async () => {
       return new Promise<boolean>((resolve) => {
-        const ws = new WebSocket('ws://localhost:1999/parties/game/test-room');
+        const ws = new WebSocket('ws://localhost:1999/parties/main/test-room');
         const timer = setTimeout(() => { ws.close(); resolve(false); }, 5000);
         ws.addEventListener('open', () => { clearTimeout(timer); ws.close(); resolve(true); });
         ws.addEventListener('error', () => { clearTimeout(timer); resolve(false); });
@@ -61,7 +61,7 @@ test.describe('Infrastructure', () => {
     });
     expect(
       connected,
-      'WebSocket to PartyKit on ws://localhost:1999/parties/game/test-room must open within 5 s.',
+      'WebSocket to PartyKit on ws://localhost:1999/parties/main/test-room must open within 5 s.',
     ).toBe(true);
   });
 
