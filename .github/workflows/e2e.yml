@@ -33,6 +33,20 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
+      - name: Prepare partykit.json (inject KV ID)
+        if: ${{ secrets.CF_HOSTS_NAMESPACE_ID != '' }}
+        run: |
+          cp partykit.json.template partykit.json
+          node -e "let fs=require('fs');let p='partykit.json';let c=fs.readFileSync(p,'utf8');c=c.replace('PASTE_NAMESPACE_ID_HERE', process.env.CF_HOSTS_NAMESPACE_ID);fs.writeFileSync(p,c);"
+        env:
+          CF_HOSTS_NAMESPACE_ID: ${{ secrets.CF_HOSTS_NAMESPACE_ID }}
+
+      - name: Build docs for /docs (production parity)
+        working-directory: ./docs-site
+        run: |
+          npm ci
+          npm run build:local
+
       - name: Start Docker stack (compose)
         run: |
           docker-compose --profile full up --build -d
