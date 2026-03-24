@@ -11,7 +11,8 @@ RUN npm install partykit
 WORKDIR /app
 RUN echo '{"dependencies":{"uuid":"^9.0.0"}}' > package.json && npm install
 COPY partykit.json ./
-COPY back/game.ts ./back/
+# Copy entire back/ directory so refactored modules (types.ts, utils.ts, etc.) are available
+COPY back/ ./back/
 EXPOSE 1999
 ENV PATH="/pk/node_modules/.bin:$PATH"
 CMD ["partykit", "dev", "--port", "1999"]
