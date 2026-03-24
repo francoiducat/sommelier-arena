@@ -273,38 +273,66 @@ Rationale
 
 
 
-A) Manual (local) publish — using Wrangler (interactive)
+A) Manual (local) publish — check/create worker, set DOCS_ORIGIN, then add route
 
-1. Authenticate (interactive):
+0. Inspect whether `sommelier-arena-proxy` already exists
 
-   npx wrangler login
+- Dashboard → Workers & Pages → Workers → search for `sommelier-arena-proxy`.
+- If present: proceed to step 2 (Set DOCS_ORIGIN and add route).
+- If not present: create the worker in step 1.
 
-   This opens a browser and authorizes wrangler with your Cloudflare account.
+1. Create / publish the worker (two options)
 
-2. Publish the worker script from the repo root (or use the Dashboard editor):
+Recommended (Wrangler, reproducible):
 
-   cd /path/to/SommelierArena
-   npx wrangler publish proxy-worker/index.ts --name sommelier-arena-proxy
+```bash
+cd /path/to/SommelierArena
+npx wrangler whoami   # verify auth
+npx wrangler publish proxy-worker/index.ts --name sommelier-arena-proxy
+```
 
-   Expected output: success message with the worker name and script URL.
+- Wrangler compiles TypeScript and publishes the named worker; this is the recommended, reproducible path.
 
-   Notes about `proxy-worker/index.ts`:
+Dashboard UI (editor):
 
-   - The repository contains `proxy-worker/index.ts`. Use this file when you want to publish the exact, versioned worker code via Wrangler (recommended).
-   - If you prefer the Dashboard UI, open Cloudflare Dashboard → Workers & Pages → Workers → Create Worker and paste the contents of `proxy-worker/index.ts` into the editor.
+- Dashboard → Workers & Pages → Workers → Create Worker
+- Paste the contents of `proxy-worker/index.ts` into the editor and Save & Deploy.
 
-   Setting `DOCS_ORIGIN`:
+2. Set DOCS_ORIGIN (one-time)
 
-   - Recommended (no code edits): set `DOCS_ORIGIN` as a Worker variable in the Dashboard (Workers → select worker → Settings → Variables & Bindings → Add). This avoids modifying repository files.
-   - One-time alternative: create a temporary local copy of `proxy-worker/index.ts`, replace the placeholder `DOCS_ORIGIN_PLACEHOLDER` with the Pages URL, and publish that copy with Wrangler. Do not commit this temporary file.
+Dashboard (recommended):
 
-3. Create the route (Dashboard):
-   - Cloudflare Dashboard → Workers & Pages → Workers → open `sommelier-arena-proxy` → Triggers → Add route:
-     - Route: `sommelier-arena.ducatillon.net/docs*`
-     - Zone: `ducatillon.net`
-   - Save. The route is applied immediately.
+- Dashboard → Workers & Pages → Workers → select `sommelier-arena-proxy` → Settings → Variables & Bindings → Add variable
+  - Name: `DOCS_ORIGIN`
+  - Value: `https://sommelier-arena-docs.pages.dev` (include protocol)
+- Save.
 
-4. Quick verification (browser): open https://sommelier-arena.ducatillon.net/docs and confirm the docs site loads.
+Alternative (one-time local publish):
+
+- Make a temp copy of `proxy-worker/index.ts`, replace `DOCS_ORIGIN_PLACEHOLDER` with your Pages URL, and publish that file with Wrangler; do not commit the temp file.
+
+3. Add the route (if missing)
+
+- Dashboard → Workers & Pages → Workers → select `sommelier-arena-proxy` → Triggers / Routes → Add route
+  - Route: `sommelier-arena.ducatillon.net/docs*`
+  - Zone: `ducatillon.net`
+- Save.
+
+4. Verify
+
+- Visit https://sommelier-arena.ducatillon.net/docs — docs should load.
+- Confirm in Dashboard: Worker → Settings shows DOCS_ORIGIN and Triggers shows the route.
+- Quick check:
+
+```bash
+curl -I https://sommelier-arena.ducatillon.net/docs
+```
+
+Troubleshooting
+
+- If Wrangler publish doesn't create the worker, ensure `npx wrangler whoami` returns the correct account and your CF API token has Workers:Edit permission.
+- If the worker exists but route is missing, add the route via Dashboard or create it programmatically (requires `CF_ZONE_ID`).
+- Dashboard variable bindings are recommended for DOCS_ORIGIN to avoid committing environment-specific values.
 
 B) Non-interactive (CI) publish — recommended for production
 
