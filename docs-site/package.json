@@ -9,8 +9,10 @@
     "build:local": "cross-env DOCS_BASE_URL=/docs docusaurus build",
     "build:prod": "cross-env DOCS_BASE_URL=/docs docusaurus build",
     "serve": "docusaurus serve --port 3002",
-    "serve:build": "docusaurus serve --port 3002"
+    "serve:build": "docusaurus serve --port 3002",
+    "serve:docs": "node scripts/serve-at-docs.js"
   },
+
   "dependencies": {
     "@docusaurus/core": "^3.1.0",
     "@docusaurus/preset-classic": "^3.1.0",
