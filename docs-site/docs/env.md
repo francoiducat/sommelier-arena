@@ -1,27 +1,63 @@
-Environment variables for docs-site
+Environment variables and .env strategy (full-stack)
 
-This page documents the environment variables used when building and serving the docs.
+This document explains how environment variables are managed across the monorepo (front, back, docs-site) and how to configure them for local development, Docker, and production.
 
-- DOCS_BASE_URL (default: /docs)
-  - Controls the Docusaurus baseUrl used at build time.
-  - For production (docs served under /docs): set DOCS_BASE_URL=/docs
-  - To mirror production locally, copy `.env.example` to `.env` and leave DOCS_BASE_URL=/docs
+Principles and precedence
 
-How to use
+- Per-service `.env` files are the primary source for local development. Each service (front/, back/, docs-site/) should include a `.env.example` describing required variables.
+- Runtime environment (CI, Docker build args, platform env) overrides per-service `.env` values and is authoritative in production.
+- Root `.env` is discouraged and not used; keep per-service examples and copy them to `.env` when developing locally.
+- Never commit real secrets. Use CI/Platform secret stores for production values.
 
-1. Copy the example:
+Per-service notes
 
-   cp .env.example .env
+- Frontend (front/)
+  - Template: `front/.env.local.example` → copy to `front/.env.local` for local dev.
+  - Key var: PUBLIC_PARTYKIT_HOST (Mode A: localhost:1999; Mode B/Docker: localhost:4321 baked at build time)
+  - In Docker mode the build injects the correct host; do not rely on local `.env.local` for Docker builds.
 
-2. Edit `.env` if you want to change values (e.g., PORT).
+- Backend (back/)
+  - Template: `back/.env.example` documents backend-only envs.
+  - Durable Object bindings (KV, etc.) are configured in `wrangler.toml` and secrets are created via `wrangler secret put` or set in CI. Do not rely on `.env` for production DO bindings.
 
-3. Install and run (example):
+- Docs (docs-site/)
+  - Template: `docs-site/.env.example` → copy to `docs-site/.env` to mirror production (`DOCS_BASE_URL=/docs`) or set to `/` for root serving.
+  - The Dockerfile accepts `--build-arg DOCS_BASE_URL` to bake the base URL at build time.
 
+How to use locally
+
+1. Copy the appropriate example into a `.env` (or `.env.local` for the front) in the service folder:
+
+   cd front && cp .env.local.example .env.local
+   cd back  && cp .env.example .env
+   cd docs-site && cp .env.example .env
+
+2. Install dependencies and run the service (example for docs-site):
+
+   cd docs-site
    npm ci
-   npm run build:local   # reads DOCS_BASE_URL from env and builds accordingly
+   npm run build:local   # uses DOCS_BASE_URL from .env
    npm run serve:build
 
-Notes
+Docker and CI
 
-- `.env` is ignored by git and should never be committed.
-- The Dockerfile accepts a build-arg `DOCS_BASE_URL` so CI or docker builds can pass the appropriate value: `docker build --build-arg DOCS_BASE_URL=/docs .`
+- Docker builds should pass necessary build args or envs explicitly; do not bake secrets into images.
+  Example: `docker build --build-arg DOCS_BASE_URL=/docs -t sommelier-docs .`
+- CI should set required environment variables via secrets and pass them into build jobs. Runtime envs in CI override `.env` files.
+
+Troubleshooting
+
+- If a local build yields incorrect base paths, ensure `DOCS_BASE_URL` is set in the service's `.env` or passed via the build command.
+- To verify which vars are picked up, run a local script that prints key env vars (do not print secrets to logs).
+
+Where to find examples
+
+- front/.env.local.example
+- back/.env.example
+- docs-site/.env.example
+
+Change log
+
+- Consolidated environment guidance into this file; removed redundant CONTRIBUTING.md at repository root to avoid duplication.
+
+If you want this doc promoted into a top-level CONTRIBUTING.md instead, say so and it can replace the deleted file.
