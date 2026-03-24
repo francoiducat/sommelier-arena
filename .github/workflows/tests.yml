@@ -1,0 +1,66 @@
+name: Tests
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  tests:
+    name: Unit + E2E
+    runs-on: ubuntu-latest
+    env:
+      CI: 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Cache node modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install frontend dependencies
+        run: npm --prefix front ci
+
+      - name: Run frontend unit tests
+        run: npm --prefix front test
+
+      - name: Start Docker stack (compose)
+        run: |
+          docker-compose up --build -d
+
+      - name: Wait for frontend to be ready
+        run: |
+          for i in {1..60}; do
+            if curl -sSf http://localhost:4321/ >/dev/null; then echo "frontend up" && break; fi
+            echo "waiting for frontend... ($i)"; sleep 2;
+          done
+
+      - name: Install Playwright browsers
+        working-directory: ./e2e
+        run: |
+          npm ci
+          npx playwright install --with-deps
+
+      - name: Run Playwright E2E tests
+        working-directory: ./e2e
+        run: npm test -- --reporter=dot
+
+      - name: Tear down docker stack
+        if: always()
+        run: |
+          docker-compose down

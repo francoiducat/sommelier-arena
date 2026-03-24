@@ -22,7 +22,8 @@ export default {
     const docsOrigin = env.DOCS_ORIGIN ?? 'https://sommelier-arena-docs.pages.dev';
 
     if (url.pathname.startsWith('/docs')) {
-      const proxied = new URL(url.pathname, docsOrigin);
+      const docsPath = url.pathname.replace(/^\/docs/, '') || '/';
+      const proxied = new URL(docsPath, docsOrigin);
       proxied.search = url.search;
 
       const proxyReq = new Request(proxied.toString(), {

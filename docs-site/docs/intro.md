@@ -43,6 +43,3 @@ Everything runs on **Cloudflare**: the frontend is a static Astro site on Cloudf
 
 - [Quick Start](quick-start) — local dev setup
 
-## Status
-
-MVP spec finalised. All conflicts resolved, all gaps filled.

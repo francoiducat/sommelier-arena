@@ -107,7 +107,7 @@ const config: Config = {
     },
     footer: {
       style: 'light',
-      copyright: `Sommelier Arena MVP — ${new Date().getFullYear()}`,
+      copyright: `Sommelier Arena — Built with ❤️ by <a href="https://notes.ducatillon.net/" target="_blank" rel="noopener">François Ducatillon</a>`,
     },
   } satisfies Preset.ThemeConfig,
 };
