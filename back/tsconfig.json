@@ -8,5 +8,5 @@
     "skipLibCheck": true,
     "noEmit": true
   },
-  "include": ["game.ts"]
+  "include": ["./**/*.ts"]
 }

@@ -25,6 +25,7 @@ const sidebars: SidebarsConfig = {
         'networking',
         'event-reference',
         'data-persistence',
+        'local-vs-prod',
         'host-identity',
         'proxy-worker',
       ],

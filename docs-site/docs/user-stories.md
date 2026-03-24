@@ -7,7 +7,7 @@ title: "User Stories"
 
 ## Host
 
-- I want to create a wine test by adding wines, so that each wine becomes a round with 4 questions (color, country, grape variety, vintage year) that I fill in with a correct answer and 3 distractors.
+- I want to create a wine test by adding wines, so that each wine becomes a round with 5 questions (color, country, grape variety, vintage year, wine name) that I fill in with a correct answer and 3 distractors.
 - I want a generated 4-digit code for my session so participants can join easily without accounts.
 - I want a Host Dashboard so I can control the pace of the game:
   - **Start** opens the lobby; starting the first round closes it.

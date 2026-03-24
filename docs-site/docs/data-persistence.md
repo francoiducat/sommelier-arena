@@ -86,3 +86,25 @@ The `finalRankings` field is written when the session ends (`host:end`).
 |-----|-------|-------------|
 | `sommelierArena:hostId` | `TANNIC-FALCON` | Never (user clears browser data) |
 | `sommelierArena:rejoin` | `{ rejoinToken, code, pseudonym }` | `session:ended` received |
+
+## In-Memory Data Model
+
+The following shows the runtime data shapes held in memory by the `GameSession` Durable Object (one instance per session code):
+
+```
+Game Session (one per room.id / session code):
+├── wines: Wine[]          — list of wines with questions and options
+├── participants: Map      — keyed by rejoinToken
+│   ├── id, socketId, pseudonym
+│   ├── score, connected
+│   └── answeredQuestions: Set
+├── phase: SessionPhase    — waiting | question_open | question_paused | question_revealed | round_leaderboard | ended
+├── currentRound           — index into wines[]
+├── currentQuestion        — index into current wine's questions[]
+├── timerSeconds           — configured timer duration (15–120s)
+├── timerRemainingMs       — live countdown
+├── hostId                 — e.g. "TANNIC-FALCON"
+└── sessionTitle           — e.g. "Friday Wine Night"
+```
+
+Each `Wine` contains 5 questions (one per fixed category: `color`, `country`, `grape_variety`, `vintage_year`, `wine_name`). Each question carries 4 answer options (1 correct, 3 distractors). Clients only learn which option is correct when `game:answer_revealed` is emitted — options are sent without the `correct` flag during active play.

@@ -20,6 +20,11 @@ Best for feature work. No Docker needed.
 ```bash
 # Terminal 1 — PartyKit backend (port 1999)
 npx partykit dev
+```
+
+:::tip No Cloudflare account needed for local dev
+`npx partykit dev` runs a **local in-memory simulator** — it emulates Cloudflare Durable Objects entirely on your machine with no internet connection required. Note: Cloudflare KV (`HOSTS_KV`) is not available locally; session history comes from browser localStorage only. See [Local vs Production](./local-vs-prod) for the full comparison.
+:::
 
 # Terminal 2 — Astro frontend (port 4321)
 cd front

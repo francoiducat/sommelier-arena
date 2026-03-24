@@ -7,7 +7,7 @@ title: "Features (MVP)"
 
 ## Host: test creation
 
-- Host creates a session and adds wines (rounds). Each wine has a name and exactly 4 questions — one per fixed category: **color**, **country**, **grape variety**, **vintage year**.
+- Host creates a session and adds wines (rounds). Each wine has a name and exactly 5 questions — one per fixed category: **color**, **country**, **grape variety**, **vintage year**, **wine name**.
 - For each question the host fills in the correct answer and 3 distractor options (4 choices total).
 - No minimum wine count is enforced, but a session with zero wines cannot be started.
 - The session is assigned a randomly generated 4-digit numeric code (e.g. `4821`) at creation time. Collisions are resolved by regenerating until a unique code is found.
@@ -41,7 +41,7 @@ The host sees a live list of which participants have answered (without revealing
 3. Participants tap an option → **first tap locks the answer**, no changes allowed.
 4. The 60-second timer counts down. When it reaches 0, answering closes automatically (equivalent to the host triggering Reveal Answer, but the host can also trigger it earlier).
 5. Host hits **Reveal Answer** → correct option is highlighted for everyone; participants who answered correctly see +100 pts.
-6. Host hits **Next** → moves to the next question, or to the round leaderboard if all 4 questions are done.
+6. Host hits **Next** → moves to the next question, or to the round leaderboard if all 5 questions are done.
 
 ## Timer
 
@@ -54,7 +54,7 @@ The host sees a live list of which participants have answered (without revealing
 
 - 100 points for a correct answer, 0 for wrong or unanswered — host cannot modify these values.
 - A **per-question score delta** is shown to participants immediately after answer reveal.
-- A **round leaderboard** (all participants ranked by cumulative score) is shown after all 4 questions of a wine are completed, before the next round begins. The host advances past it with **Next**.
+- A **round leaderboard** (all participants ranked by cumulative score) is shown after all 5 questions of a wine are completed, before the next round begins. The host advances past it with **Next**.
 - A **final leaderboard** is shown to all participants when the host hits **End**. It persists on-screen until the participant closes the tab.
 
 ## Connection & session lifecycle

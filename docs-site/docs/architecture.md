@@ -10,8 +10,13 @@ sidebar_label: Architecture
 
 ```
 /
-├── party/
-│   └── game.ts                   ← entire backend (one Durable Object class)
+├── back/                         ← PartyKit backend (Durable Object)
+│   ├── game.ts                   ← GameSession class (main entry point)
+│   ├── types.ts                  ← exported types & interfaces
+│   ├── constants.ts              ← word lists, category prompts
+│   ├── utils.ts                  ← pure utility functions (shuffle, pseudonym gen)
+│   ├── scoring.ts                ← pure scoring functions
+│   └── timer.ts                  ← TimerManager class
 ├── front/                        ← Astro + React frontend
 │   └── src/
 │       ├── lib/socket.ts         ← PartySocket factory

@@ -1,125 +1,11 @@
 import type * as Party from 'partykit/server';
 import { v4 as uuidv4 } from 'uuid';
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-export type SessionPhase =
-  | 'waiting'
-  | 'question_open'
-  | 'question_paused'
-  | 'question_revealed'
-  | 'round_leaderboard'
-  | 'ended';
-
-export type QuestionCategory =
-  | 'color'
-  | 'country'
-  | 'grape_variety'
-  | 'vintage_year'
-  | 'wine_name';
-
-export interface AnswerOption {
-  id: string;
-  text: string;
-  correct: boolean;
-}
-
-export interface Question {
-  id: string;
-  category: QuestionCategory;
-  prompt: string;
-  options: AnswerOption[];
-}
-
-export interface Wine {
-  id: string;
-  name: string;
-  questions: Question[];
-}
-
-export interface Participant {
-  id: string;
-  socketId: string;
-  pseudonym: string;
-  score: number;
-  connected: boolean;
-  answeredQuestions: Set<string>;
-}
-
-export interface ParticipantAnswer {
-  optionId: string;
-  correct: boolean;
-  points: number;
-}
-
-export interface SessionListEntry {
-  code: string;
-  title: string;
-  createdAt: string;
-  status: 'waiting' | 'active' | 'ended';
-  participantCount: number;
-  finalRankings?: { pseudonym: string; score: number }[];
-}
-
-export interface SavedState {
-  wines: Wine[];
-  phase: SessionPhase;
-  timerSeconds: number;
-  currentRound: number;
-  currentQuestion: number;
-  hostId: string;
-  sessionTitle: string;
-  createdAt: string;
-}
-
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-const MAX_PLAYERS = 10;
-
-const CATEGORY_PROMPTS: Record<QuestionCategory, string> = {
-  color: 'What is the color of this wine?',
-  country: 'From which country or region does this wine come?',
-  grape_variety: 'What is the grape variety of this wine?',
-  vintage_year: 'What is the vintage year of this wine?',
-  wine_name: 'What is the name of this wine?',
-};
-
-const ADJECTIVES = [
-  'Tannic', 'Fruity', 'Oaky', 'Crisp', 'Bold',
-  'Silky', 'Robust', 'Floral', 'Velvety', 'Mineral',
-  'Earthy', 'Smoky', 'Spicy', 'Vivid', 'Amber',
-  'Peaty', 'Briny', 'Zesty', 'Plummy', 'Mellow',
-];
-
-const NOUNS = [
-  'Falcon', 'Barrel', 'Vine', 'Cork', 'Cellar',
-  'Magnum', 'Chateau', 'Bouquet', 'Tannin', 'Grape',
-  'Carafe', 'Terroir', 'Decanter', 'Cuvee', 'Goblet',
-  'Riesling', 'Claret', 'Merlot', 'Shiraz', 'Pinot',
-];
-
-// ─── Fisher-Yates shuffle ─────────────────────────────────────────────────────
-
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-// ─── Pseudonym generator ──────────────────────────────────────────────────────
-
-function generatePseudonym(usedPseudonyms: Set<string>): string {
-  for (let i = 0; i < 400; i++) {
-    const adj = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
-    const noun = NOUNS[Math.floor(Math.random() * NOUNS.length)];
-    const candidate = `${adj}${noun}`;
-    if (!usedPseudonyms.has(candidate)) return candidate;
-  }
-  return `Wine${Math.floor(Math.random() * 9000) + 1000}`;
-}
+import type { SessionPhase, QuestionCategory, AnswerOption, Question, Wine, Participant, ParticipantAnswer, SessionListEntry, SavedState } from './types';
+export type { SessionPhase, QuestionCategory, AnswerOption, Question, Wine, Participant, ParticipantAnswer, SessionListEntry, SavedState };
+import { MAX_PLAYERS, CATEGORY_PROMPTS } from './constants';
+import { shuffle, generatePseudonym, generateHostId } from './utils';
+import { scoreAnswer, buildRankings } from './scoring';
+import { TimerManager } from './timer';
 
 // ─── GameSession Durable Object ───────────────────────────────────────────────
 
@@ -128,14 +14,13 @@ export default class GameSession implements Party.Server {
   wines: Wine[] = [];
   phase: SessionPhase = 'waiting';
   timerSeconds = 60;
-  timerRemainingMs = 60_000;
   currentRound = 0;
   currentQuestion = 0;
   hostId: string | null = null;
   sessionTitle = '';
   createdAt = '';
   hostConnectionId: string | null = null;
-  activeTimer: ReturnType<typeof setInterval> | null = null;
+  private readonly timer = new TimerManager();
 
   // Keyed by rejoinToken
   participants = new Map<string, Participant>();
@@ -242,7 +127,7 @@ export default class GameSession implements Party.Server {
       // Host disconnected — if game was active, end it gracefully so
       // participants receive final scores before the session:ended message.
       if (this.phase !== 'waiting' && this.phase !== 'ended') {
-        this.clearTimer();
+        this.timer.clear();
         void this.endGame();
       }
       return;
@@ -309,7 +194,7 @@ export default class GameSession implements Party.Server {
       ? Math.max(15, Math.min(120, event.timerSeconds))
       : 60;
 
-    const hostId = (event.hostId as string) || this.generateHostId();
+    const hostId = (event.hostId as string) || generateHostId();
     const title = (event.title as string) || wines[0]?.name || 'Wine Night';
 
     this.wines = wines.map((wineDto) => ({
@@ -334,7 +219,6 @@ export default class GameSession implements Party.Server {
     }));
 
     this.timerSeconds = timerSeconds;
-    this.timerRemainingMs = timerSeconds * 1000;
     this.hostId = hostId;
     this.sessionTitle = title;
     this.createdAt = new Date().toISOString();
@@ -381,7 +265,7 @@ export default class GameSession implements Party.Server {
       question: this.phase === 'question_open' || this.phase === 'question_paused' || this.phase === 'question_revealed'
         ? this.buildQuestionPayload()
         : null,
-      rankings: this.buildRankings(),
+      rankings: buildRankings(this.participants),
     }));
   }
 
@@ -507,12 +391,12 @@ export default class GameSession implements Party.Server {
     if (sender.id !== this.hostConnectionId) return;
     if (this.phase !== 'question_open') return;
 
-    this.clearTimer();
+    this.timer.pause();
     this.phase = 'question_paused';
 
     this.room.broadcast(JSON.stringify({
       type: 'game:timer_paused',
-      remainingMs: this.timerRemainingMs,
+      remainingMs: this.timer.remainingMs,
     }));
   }
 
@@ -521,11 +405,16 @@ export default class GameSession implements Party.Server {
     if (this.phase !== 'question_paused') return;
 
     this.phase = 'question_open';
-    await this.startTimer();
+    const remaining = this.timer.remainingMs;
+    const onTick = (ms: number) => {
+      this.room.broadcast(JSON.stringify({ type: 'game:timer_tick', remainingMs: ms }));
+    };
+    this.timer.resume(remaining, onTick, () => {});
+    await this.room.storage.setAlarm(Date.now() + remaining);
 
     this.room.broadcast(JSON.stringify({
       type: 'game:timer_resumed',
-      remainingMs: this.timerRemainingMs,
+      remainingMs: remaining,
     }));
   }
 
@@ -533,7 +422,7 @@ export default class GameSession implements Party.Server {
     if (sender.id !== this.hostConnectionId) return;
     if (this.phase !== 'question_open' && this.phase !== 'question_paused') return;
 
-    this.clearTimer();
+    this.timer.clear();
     this.phase = 'question_revealed';
 
     const question = this.wines[this.currentRound].questions[this.currentQuestion];
@@ -544,8 +433,9 @@ export default class GameSession implements Party.Server {
     for (const [, participant] of this.participants) {
       const inFlightKey = `${participant.id}:${question.id}`;
       const answeredOptionId = this.inFlightAnswers.get(inFlightKey) ?? null;
-      const isCorrect = answeredOptionId === correctOption.id;
-      const points = answeredOptionId !== null ? (isCorrect ? 100 : 0) : 0;
+      const { correct: isCorrect, points } = answeredOptionId !== null
+        ? scoreAnswer(question, answeredOptionId)
+        : { correct: false, points: 0 };
       participant.score += points;
 
       // Persist final answer to disk
@@ -612,7 +502,7 @@ export default class GameSession implements Party.Server {
       this.phase = 'round_leaderboard';
       await this.saveState();
       this.broadcast('game:round_leaderboard', {
-        rankings: this.buildRankings(),
+        rankings: buildRankings(this.participants),
         roundIndex: this.currentRound,
         totalRounds: this.wines.length,
       });
@@ -675,35 +565,19 @@ export default class GameSession implements Party.Server {
   // ─── Timer helpers ────────────────────────────────────────────────────────
 
   private async startTimer() {
-    this.clearTimer();
-    this.timerRemainingMs = this.timerRemainingMs > 0
-      ? this.timerRemainingMs
-      : this.timerSeconds * 1000;
-
-    // RAM layer: visual countdown every second
-    this.activeTimer = setInterval(() => {
-      this.timerRemainingMs = Math.max(0, this.timerRemainingMs - 1000);
-      this.room.broadcast(JSON.stringify({
-        type: 'game:timer_tick',
-        remainingMs: this.timerRemainingMs,
-      }));
-    }, 1000);
+    const onTick = (ms: number) => {
+      this.room.broadcast(JSON.stringify({ type: 'game:timer_tick', remainingMs: ms }));
+    };
+    this.timer.start(this.timerSeconds, onTick, () => {});
 
     // Disk layer: authoritative alarm (survives DO eviction)
-    await this.room.storage.setAlarm(Date.now() + this.timerRemainingMs);
-  }
-
-  private clearTimer() {
-    if (this.activeTimer !== null) {
-      clearInterval(this.activeTimer);
-      this.activeTimer = null;
-    }
+    await this.room.storage.setAlarm(Date.now() + this.timer.remainingMs);
   }
 
   private async handleTimerExpiry() {
     if (this.phase !== 'question_open') return;
     // Treat as host clicking reveal
-    this.clearTimer();
+    this.timer.clear();
     this.phase = 'question_revealed';
 
     const question = this.wines[this.currentRound].questions[this.currentQuestion];
@@ -713,8 +587,9 @@ export default class GameSession implements Party.Server {
     for (const [, participant] of this.participants) {
       const inFlightKey = `${participant.id}:${question.id}`;
       const answeredOptionId = this.inFlightAnswers.get(inFlightKey) ?? null;
-      const isCorrect = answeredOptionId === correctOption.id;
-      const points = answeredOptionId !== null ? (isCorrect ? 100 : 0) : 0;
+      const { correct: isCorrect, points } = answeredOptionId !== null
+        ? scoreAnswer(question, answeredOptionId)
+        : { correct: false, points: 0 };
       participant.score += points;
 
       await this.room.storage.put(`response:${participant.id}:${question.id}`, {
@@ -747,7 +622,6 @@ export default class GameSession implements Party.Server {
   // ─── Broadcast helpers ────────────────────────────────────────────────────
 
   private async broadcastQuestion() {
-    this.timerRemainingMs = this.timerSeconds * 1000;
     const payload = this.buildQuestionPayload();
     this.room.broadcast(JSON.stringify({ type: 'game:question', ...payload }));
     await this.startTimer();
@@ -776,9 +650,9 @@ export default class GameSession implements Party.Server {
   // ─── End game ─────────────────────────────────────────────────────────────
 
   private async endGame() {
-    this.clearTimer();
+    this.timer.clear();
     this.phase = 'ended';
-    const rankings = this.buildRankings();
+    const rankings = buildRankings(this.participants);
 
     await this.saveState();
     await this.upsertKvSession({
@@ -812,10 +686,11 @@ export default class GameSession implements Party.Server {
     if (!this.hostId) return;
     const kvKey = `host:${this.hostId}`;
     try {
-      const existing = (await this.room.context.bindings.HOSTS_KV.get(
-        kvKey,
-        'json',
-      ) as SessionListEntry[] | null) ?? [];
+      const hostsKv = (this.room.context.bindings as unknown as {
+        HOSTS_KV: { get(k: string, t: 'json'): Promise<unknown>; put(k: string, v: string): Promise<void> };
+      }).HOSTS_KV;
+
+      const existing = (await hostsKv.get(kvKey, 'json') as SessionListEntry[] | null) ?? [];
 
       const sessionEntry: SessionListEntry = {
         code: this.room.id,
@@ -833,7 +708,7 @@ export default class GameSession implements Party.Server {
         existing.push(sessionEntry);
       }
 
-      await this.room.context.bindings.HOSTS_KV.put(kvKey, JSON.stringify(existing));
+      await hostsKv.put(kvKey, JSON.stringify(existing));
     } catch {
       // KV not available in local dev without binding — fail silently
     }
@@ -850,15 +725,4 @@ export default class GameSession implements Party.Server {
       .map((p) => p.pseudonym);
   }
 
-  private buildRankings(): { pseudonym: string; score: number }[] {
-    return Array.from(this.participants.values())
-      .map((p) => ({ pseudonym: p.pseudonym, score: p.score }))
-      .sort((a, b) => b.score - a.score);
-  }
-
-  private generateHostId(): string {
-    const adj = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
-    const noun = NOUNS[Math.floor(Math.random() * NOUNS.length)];
-    return `${adj.toUpperCase()}-${noun.toUpperCase()}`;
-  }
 }
