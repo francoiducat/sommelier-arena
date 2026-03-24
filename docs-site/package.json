@@ -4,8 +4,12 @@
   "private": true,
   "scripts": {
     "start": "docusaurus start",
+    "start:local": "cross-env DOCS_BASE_URL=/ docusaurus start",
     "build": "docusaurus build",
-    "serve": "docusaurus serve"
+    "build:local": "cross-env DOCS_BASE_URL=/ docusaurus build",
+    "build:prod": "cross-env DOCS_BASE_URL=/docs docusaurus build",
+    "serve": "docusaurus serve",
+    "serve:build": "docusaurus serve --port 3002"
   },
   "dependencies": {
     "@docusaurus/core": "^3.1.0",
@@ -13,7 +17,7 @@
     "clsx": "^2.0.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "@cmfcmf/docusaurus-search-local": "*"
+    "@cmfcmf/docusaurus-search-local": "^2.0.1"
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "^3.1.0",
