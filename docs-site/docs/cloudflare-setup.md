@@ -10,22 +10,70 @@ Step-by-step guide for setting up Sommelier Arena through the Cloudflare web UI.
 
 ---
 
-## 1. Create the KV namespace
+## 1. Create the KV namespace (precise steps)
 
-**Workers & Pages → KV → Create namespace**
+Goal: create a Cloudflare KV namespace and bind it to the worker as `HOSTS_KV` so the backend can store cross-session host lists.
 
-1. Log in to [dash.cloudflare.com](https://dash.cloudflare.com)
-2. Select your account in the left sidebar
-3. Click **Workers & Pages** in the left nav
-4. Click **KV** in the top tab bar
-5. Click **Create namespace** (top right)
-6. Name: `SOMMELIER_HOSTS` → click **Add**
-7. The namespace appears in the list with a unique **Namespace ID** — copy it
-8. Open `partykit.json` in your editor and replace `YOUR_KV_NAMESPACE_ID`:
-   ```json
-   { "binding": "HOSTS_KV", "id": "PASTE_NAMESPACE_ID_HERE" }
-   ```
-9. Run `npx partykit deploy` to apply
+Two equivalent ways: (A) Cloudflare Dashboard (GUI) — easiest; (B) Wrangler CLI — scriptable. Choose one.
+
+A) Dashboard (GUI) — recommended
+1. Open https://dash.cloudflare.com and sign in to the Cloudflare account that will host the Pages / Workers.
+2. Select the account (top-left) and click **Workers & Pages** in the left nav.
+3. Click the **KV** tab near the top.
+4. Click **Create namespace** (top-right).
+5. For the *Name* enter: SOMMELIER_HOSTS and click **Add**.
+6. The new namespace will appear in the list. Click it and copy the shown **Namespace ID** value.
+
+B) Wrangler CLI (scriptable)
+1. Install wrangler if you don't have it: `npm install -g wrangler` (or use `npx wrangler`).
+2. Authenticate: `npx wrangler login` and follow the browser flow.
+3. Create the namespace (returns an ID):
+
+   npx wrangler kv:namespace create "SOMMELIER_HOSTS"
+
+   The CLI will print the Namespace ID; copy it.
+
+Bind the namespace to the project
+
+1. Open the repo root and edit the file `partykit.json` (path: /Users/mac-FDUCAT18/Workspace/FDUCAT/SommelierArena/partykit.json).
+2. Locate the `bindings` array (or the section where KV bindings are declared) and add or replace an entry so it looks like this (exact JSON fragment):
+
+```json
+{
+  "binding": "HOSTS_KV",
+  "id": "PASTE_NAMESPACE_ID_HERE"
+}
+```
+
+3. Save the file.
+
+Important: where to run `npx partykit deploy`
+
+- Run this from the repository root (the directory that contains `partykit.json`). Example:
+
+  cd /Users/mac-FDUCAT18/Workspace/FDUCAT/SommelierArena
+  npx partykit deploy
+
+- Before running `npx partykit deploy` make sure you are authenticated with Cloudflare (run `npx wrangler login` if you haven't already) and that the account has permission to publish Workers/Pages.
+
+Why this order matters
+
+- The KV namespace must exist before deploy so the deployment tool can create a binding with the correct namespace ID.
+- PartyKit/partykit.json contains the binding configuration that the deploy step uses to associate `HOSTS_KV` with your namespace.
+
+Verification
+
+1. After `npx partykit deploy` succeeds, open Cloudflare Dashboard → Workers & Pages → your Worker and confirm the binding `HOSTS_KV` appears under **Settings / Variables & Bindings** (or similar). It should list the Namespace ID you pasted.
+2. In the repo you can also inspect the built worker metadata (if printed by the deploy command) to confirm bindings.
+
+Troubleshooting
+
+- If `npx partykit deploy` errors with authentication issues, run `npx wrangler login` and retry.
+- If you accidentally created the namespace in a different Cloudflare account, delete and recreate it in the intended account, then update `partykit.json` and re-deploy.
+
+Security note
+
+- Do not commit secrets or account tokens to git. The namespace ID is non-secret (safe to commit), but API keys or account tokens must not be committed.
 
 ---
 
