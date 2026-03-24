@@ -35,27 +35,33 @@ B) Wrangler CLI (scriptable)
 
 Bind the namespace to the project
 
-1. Open the repo root and edit the file `partykit.json` (path: /Users/mac-FDUCAT18/Workspace/FDUCAT/SommelierArena/partykit.json).
-2. Locate the `bindings` array (or the section where KV bindings are declared) and add or replace an entry so it looks like this (exact JSON fragment):
+1. Use the template-based workflow to avoid committing environment-specific files. The repository contains `partykit.json.template` with a placeholder for the KV namespace ID.
+2. Locally, create a working `partykit.json` from the template and paste the Namespace ID you copied when creating the KV namespace:
 
-```json
-{
-  "binding": "HOSTS_KV",
-  "id": "PASTE_NAMESPACE_ID_HERE"
-}
+```bash
+cp partykit.json.template partykit.json
+# Edit partykit.json and replace PASTE_NAMESPACE_ID_HERE with the Namespace ID you copied
 ```
 
-3. Save the file.
+3. Add `partykit.json` to your local `.gitignore` if you haven't already so local copies are not committed.
 
 Template & CI workflow (recommended)
 
-To avoid committing environment-specific namespace IDs into the repository, follow this workflow:
+To keep CI and local workflows reproducible and avoid committing environment-specific values, prefer injecting the Namespace ID at build/deploy time:
 
-- Add `partykit.json.template` to the repo (contains the same structure as `partykit.json` but with the placeholder `PASTE_NAMESPACE_ID_HERE`). Developers copy this to `partykit.json` locally and paste the real Namespace ID.
-- Add `partykit.json` to `.gitignore` so local copies are not committed.
-- In CI (GitHub Actions example below), inject the real Namespace ID from a secret (e.g., `CF_HOSTS_NAMESPACE_ID`) into `partykit.json` at build time before running `npx partykit deploy`.
+- Keep `partykit.json.template` committed in the repo. It should contain the `bindings` entry for `HOSTS_KV` with the placeholder value `PASTE_NAMESPACE_ID_HERE`.
+- In CI (the app/deploy workflow that performs `npx partykit deploy`), generate `partykit.json` from the template and replace the placeholder with the secret value (example below).
+- Keep docs-only CI (docs-ci) separate — docs builds do not need the KV binding injected.
 
-Example GitHub Actions snippet (insert into your docs or CI workflow):
+CI & deploy notes
+
+- This repo uses two GitHub Actions workflows:
+  - `docs-ci.yml` — docs-only workflow. Runs when files under `docs-site/**` change. It builds the Docusaurus site and uploads the `docs-site/build` artifact. It does NOT perform any PartyKit or Cloudflare deploys and does NOT inject KV IDs.
+  - `app-ci.yml` — app-focused workflow. Responsible for E2E, PartyKit deploy, and Wrangler publish. It is triggered on pushes to `main` and `cloudflare-migration` and can be started manually via `workflow_dispatch`.
+
+Prepare partykit.json in your app/deploy workflow
+
+Place the following steps in your *app* deploy workflow (e.g. `app-ci.yml`) — do NOT add this to `docs-ci.yml`:
 
 ```yaml
 - name: Prepare partykit.json from template
@@ -66,31 +72,68 @@ Example GitHub Actions snippet (insert into your docs or CI workflow):
     node -e "let fs=require('fs');let p='partykit.json';let c=fs.readFileSync(p,'utf8');c=c.replace('PASTE_NAMESPACE_ID_HERE', process.env.CF_HOSTS_NAMESPACE_ID);fs.writeFileSync(p,c);"
 
 - name: Deploy PartyKit
-  run: npx partykit deploy
+  env:
+    CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+  run: |
+    npm ci
+    npx partykit deploy
+
+- name: Publish proxy worker via Wrangler
+  if: ${{ secrets.CF_API_TOKEN != '' }}
+  env:
+    CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+  run: npx wrangler publish proxy-worker/index.ts --name sommelier-arena-proxy
 ```
 
-Notes:
-- The Namespace ID itself is not secret and may be committed if you choose; however, storing it in CI secrets and injecting at build time avoids accidental leaks and keeps local files untracked.
-- If you prefer to keep the Namespace ID committed, use `partykit.json` directly and skip the template/CI steps.
+Required GitHub Secrets for app-ci
 
-Important: where to run `npx partykit deploy`
+- `CF_HOSTS_NAMESPACE_ID` — the KV namespace ID used to populate `partykit.json`. This value is non-secret but is convenient to keep in secrets to avoid committing local files.
+- `CF_API_TOKEN` — Cloudflare API token with permissions to deploy Workers/Pages and manage routes. Required for `npx partykit deploy` and `wrangler publish`.
 
-- Run this from the repository root (the directory that contains `partykit.json`). Example:
+Important
 
-  cd /Users/mac-FDUCAT18/Workspace/FDUCAT/SommelierArena
-  npx partykit deploy
+- Do NOT inject KV IDs in `docs-ci.yml`. The docs build should remain independent and only produce the docs artifact. The app/deploy workflow (app-ci) is the correct place for `partykit.json` generation and PartyKit/wrangler deploys.
+- The `app-ci.yml` workflow can be triggered via `workflow_dispatch` for manual deploys, or runs automatically on pushes to the configured branches.
+- If you need to run `npx partykit deploy` locally, run it from the repo root (where `partykit.json` lives):
 
-- Before running `npx partykit deploy` make sure you are authenticated with Cloudflare (run `npx wrangler login` if you haven't already) and that the account has permission to publish Workers/Pages.
+```bash
+cd /path/to/SommelierArena
+cp partykit.json.template partykit.json
+# edit partykit.json to replace placeholder if needed
+npx partykit deploy
+```
+
+
+
+
+Where `npx partykit deploy` runs (locally vs CI)
+
+- CI (recommended): The preferred approach is to let `app-ci.yml` perform `npx partykit deploy` in GitHub Actions after tests pass. The app workflow prepares `partykit.json` from `partykit.json.template` using the `CF_HOSTS_NAMESPACE_ID` secret and runs the deploy with `CF_API_TOKEN` available in the environment.
+
+- Locally (for manual deploys): Run from the repository root where `partykit.json` lives:
+
+```bash
+cd /path/to/SommelierArena
+cp partykit.json.template partykit.json
+# Edit partykit.json and replace PASTE_NAMESPACE_ID_HERE with your Namespace ID
+npx partykit deploy
+```
+
+Before running deploy (CI or local)
+
+- Ensure the KV namespace exists (you created it earlier and have its Namespace ID).
+- Ensure you are authenticated with Cloudflare locally (`npx wrangler login`) or have a valid `CF_API_TOKEN` stored in GitHub Secrets for CI.
 
 Why this order matters
 
-- The KV namespace must exist before deploy so the deployment tool can create a binding with the correct namespace ID.
-- PartyKit/partykit.json contains the binding configuration that the deploy step uses to associate `HOSTS_KV` with your namespace.
+- The KV namespace must exist before deploy so PartyKit can bind the namespace ID to `HOSTS_KV` during deployment.
+- `partykit.json` contains the binding information used by the deploy step. The CI flow injects the Namespace ID into the template at runtime so the repo never contains environment-specific files.
 
 Verification
 
-1. After `npx partykit deploy` succeeds, open Cloudflare Dashboard → Workers & Pages → your Worker and confirm the binding `HOSTS_KV` appears under **Settings / Variables & Bindings** (or similar). It should list the Namespace ID you pasted.
-2. In the repo you can also inspect the built worker metadata (if printed by the deploy command) to confirm bindings.
+1. After `npx partykit deploy` succeeds (CI or local), open Cloudflare Dashboard → Workers & Pages → your Worker and confirm the binding `HOSTS_KV` appears under **Settings / Variables & Bindings**.
+2. In CI logs you should see the deploy command run; inspect output for binding confirmation or errors.
+
 
 Troubleshooting
 
