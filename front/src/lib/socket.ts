@@ -1,12 +1,19 @@
-import { io } from 'socket.io-client';
+import PartySocket from 'partysocket';
 
-// In Docker: PUBLIC_BACKEND_URL is not set, so socket connects to same-origin
-// (proxied through nginx /socket.io/ → back:3001).
-// In local dev (Option B): front/.env sets PUBLIC_BACKEND_URL=http://localhost:3001.
-const BACKEND_URL =
-  import.meta.env.PUBLIC_BACKEND_URL || undefined;
+// In Docker/production: PUBLIC_PARTYKIT_HOST is set via build arg or Pages dashboard.
+// In local dev (Mode A): front/.env.local sets PUBLIC_PARTYKIT_HOST=localhost:1999.
+const PARTYKIT_HOST =
+  (import.meta as ImportMeta & { env: Record<string, string> }).env.PUBLIC_PARTYKIT_HOST ||
+  'localhost:1999';
 
-export const socket = io(BACKEND_URL, {
-  autoConnect: false,
-  transports: ['websocket', 'polling'],
-});
+/**
+ * Creates a PartySocket connected to a specific game session room.
+ * The room ID is the 4-digit session code — one Durable Object per session.
+ */
+export function createSocket(room: string): PartySocket {
+  return new PartySocket({
+    host: PARTYKIT_HOST,
+    room,
+    party: 'main',
+  });
+}

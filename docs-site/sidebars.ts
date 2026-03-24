@@ -3,14 +3,38 @@ import type { SidebarsConfig } from '@docusaurus/plugin-content-docs';
 const sidebars: SidebarsConfig = {
   docs: [
     'intro',
-    'prd',
-    'overview',
-    'features',
-    'user-stories',
-    'tech-stack',
-    'database-model',
-    'architecture',
-    'quick-start',
+    {
+      type: 'category',
+      label: 'Getting Started',
+      collapsed: false,
+      items: ['quick-start', 'cloudflare-setup', 'deployment'],
+    },
+    {
+      type: 'category',
+      label: 'Game Design',
+      collapsed: false,
+      items: ['overview', 'features', 'user-stories', 'gameplay-workflow'],
+    },
+    {
+      type: 'category',
+      label: 'Technical Reference',
+      collapsed: false,
+      items: [
+        'architecture',
+        'tech-stack',
+        'networking',
+        'event-reference',
+        'data-persistence',
+        'host-identity',
+        'proxy-worker',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Development',
+      collapsed: true,
+      items: ['contributing', 'prd'],
+    },
   ],
 };
 

@@ -1,0 +1,5 @@
+{
+  "name": "sommelier-arena",
+  "main": "back/game.ts",
+  "compatibilityDate": "2026-03-22"
+}

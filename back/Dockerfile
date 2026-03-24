@@ -1,15 +1,17 @@
-FROM node:20-alpine AS builder
+# Build context must be the repo root so partykit.json and back/game.ts are both accessible.
+# Example: docker build -f back/Dockerfile -t sommelier-arena-back .
+#
+# partykit is installed in an isolated /pk directory to avoid macOS vs Linux native
+# binary conflicts — workerd ships platform-specific binaries that must be installed
+# on the target OS. uuid goes in /app/node_modules so partykit's bundler (esbuild)
+# can resolve it from back/game.ts during the build step.
+FROM node:20-slim
+WORKDIR /pk
+RUN npm install partykit
 WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY . .
-RUN npm run build
-
-FROM node:20-alpine AS production
-WORKDIR /app
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/package*.json ./
-# Install only production deps for the runtime image
-RUN npm install --omit=dev
-EXPOSE 3001
-CMD ["node", "dist/src/main"]
+RUN echo '{"dependencies":{"uuid":"^9.0.0"}}' > package.json && npm install
+COPY partykit.json ./
+COPY back/game.ts ./back/
+EXPOSE 1999
+ENV PATH="/pk/node_modules/.bin:$PATH"
+CMD ["partykit", "dev", "--port", "1999"]

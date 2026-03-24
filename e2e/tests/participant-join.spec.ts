@@ -4,6 +4,11 @@ import { test, expect, type BrowserContext } from '@playwright/test';
 async function createSessionAndGetCode(hostContext: BrowserContext): Promise<string> {
   const hostPage = await hostContext.newPage();
   await hostPage.goto('/host');
+  // Dashboard phase — click New Session to get to form
+  const newSessionBtn = hostPage.getByRole('button', { name: /new session/i });
+  if (await newSessionBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+    await newSessionBtn.click();
+  }
   await expect(hostPage.getByRole('button', { name: /create session/i })).toBeVisible();
 
   await hostPage.getByLabel('Wine name').fill('Test Wine');
@@ -85,6 +90,10 @@ test.describe('Participant Join', () => {
         await expect(participantPage.getByText(/welcome/i).or(
           participantPage.getByRole('heading')
         )).toBeVisible();
+      });
+
+      await test.step('URL updates to include ?code= after joining @smoke', async () => {
+        await expect(participantPage).toHaveURL(/[?&]code=\d{4}/);
       });
     } finally {
       await hostContext.close();

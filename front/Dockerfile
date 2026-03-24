@@ -1,8 +1,12 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# No PUBLIC_BACKEND_URL baked in: the browser connects to same-origin and
-# nginx proxies /socket.io/ to the backend container.
+# PUBLIC_PARTYKIT_HOST is baked into the Astro static build at build time.
+# In Docker Mode B, the browser connects to localhost:3000 (nginx) which
+# proxies /parties/ to the back container. So we set it to localhost:3000.
+ARG PUBLIC_PARTYKIT_HOST=localhost:3000
+ENV PUBLIC_PARTYKIT_HOST=$PUBLIC_PARTYKIT_HOST
+
 COPY package*.json ./
 RUN npm install
 COPY . .

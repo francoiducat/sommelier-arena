@@ -51,10 +51,10 @@ test.describe('Mobile UX', () => {
   });
 
   test('Join flow completes on mobile viewport @mobile', async ({ page }) => {
-    // We need a real session to join — skip gracefully if backend is unavailable
-    const healthRes = await page.request.get('http://localhost:3001/health').catch(() => null);
-    if (!healthRes || healthRes.status() !== 200) {
-      test.skip(true, 'Backend not reachable — skipping mobile join flow');
+    // We need a real session to join — skip gracefully if PartyKit is unavailable
+    const partyRes = await page.request.get('http://localhost:1999/').catch(() => null);
+    if (!partyRes || partyRes.status() >= 500) {
+      test.skip(true, 'PartyKit not reachable — skipping mobile join flow');
     }
 
     await page.goto('/play');
@@ -72,5 +72,16 @@ test.describe('Mobile UX', () => {
         'Page must not require horizontal scrolling on mobile',
       ).toBeLessThanOrEqual(clientWidth + 1); // +1 px tolerance for sub-pixel rounding
     });
+  });
+
+  test('NavBar URL span is visible at 375px viewport (no hidden class) @mobile @smoke', async ({ page }) => {
+    await page.goto('/');
+    // The URL span should be visible and not have the 'hidden' class at mobile width
+    const urlSpan = page.locator('nav').getByText(/localhost|http/i).first();
+    // If there's a URL shown in the nav (depends on phase), it must not be hidden
+    // Since on homepage no session is active, the NavBar may not show a URL —
+    // instead verify there is no element with 'hidden sm:block' pattern in nav
+    const hiddenSpan = page.locator('nav span.hidden');
+    await expect(hiddenSpan).toHaveCount(0);
   });
 });

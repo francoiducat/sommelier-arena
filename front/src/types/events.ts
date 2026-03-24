@@ -1,5 +1,12 @@
-// Mirrors back/src/game/game.service.ts exported types
-// and back/src/game/game.gateway.ts event payloads
+// Mirrors party/game.ts types and event payloads.
+// Keep in sync with party/game.ts when changing event shapes.
+
+export type QuestionCategory =
+  | 'color'
+  | 'country'
+  | 'grape_variety'
+  | 'vintage_year'
+  | 'wine_name';
 
 export interface OptionPayload {
   id: string;
@@ -12,7 +19,7 @@ export interface QuestionPayload {
   totalQuestions: number;
   roundIndex: number;
   totalRounds: number;
-  category: string;
+  category: QuestionCategory;
   prompt: string;
   options: OptionPayload[];
   timerMs: number;
@@ -39,6 +46,7 @@ export interface ParticipantRevealPayload {
 export interface RoundLeaderboardPayload {
   rankings: RankingEntry[];
   roundIndex: number;
+  totalRounds: number;
 }
 
 export interface FinalLeaderboardPayload {
@@ -64,7 +72,7 @@ export interface ErrorPayload {
 
 // Host → Server: create session wine question
 export interface CreateQuestionPayload {
-  category: string;
+  category: QuestionCategory;
   correctAnswer: string;
   distractors: [string, string, string];
 }
@@ -76,4 +84,44 @@ export interface CreateWinePayload {
 
 export interface CreateSessionPayload {
   wines: CreateWinePayload[];
+  timerSeconds: number;
+  hostId: string;
+  title?: string;
 }
+
+// Host identity + session list (from KV)
+export interface SessionListEntry {
+  code: string;
+  title: string;
+  createdAt: string;
+  status: 'waiting' | 'active' | 'ended';
+  participantCount: number;
+  finalRankings?: RankingEntry[];
+}
+
+export interface SessionsListPayload {
+  sessions: SessionListEntry[];
+}
+
+// Server → Host: full state snapshot on reconnect
+export interface HostStateSnapshot {
+  phase: string;
+  code: string;
+  hostId: string;
+  wines: unknown[];
+  participants: string[];
+  timerSeconds: number;
+  currentRound: number;
+  currentQuestion: number;
+  question: QuestionPayload | null;
+  rankings: RankingEntry[];
+}
+
+// Server → Participant: full state snapshot on rejoin
+export interface ParticipantStateSnapshot {
+  pseudonym: string;
+  score: number;
+  phase: string;
+  question: QuestionPayload | null;
+}
+
