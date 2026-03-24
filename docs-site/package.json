@@ -4,11 +4,11 @@
   "private": true,
   "scripts": {
     "start": "docusaurus start",
-    "start:local": "cross-env DOCS_BASE_URL=/docs docusaurus start",
+    "start:local": "cross-env DOCS_BASE_URL=/docs docusaurus start --port 3002",
     "build": "docusaurus build",
     "build:local": "cross-env DOCS_BASE_URL=/docs docusaurus build",
     "build:prod": "cross-env DOCS_BASE_URL=/docs docusaurus build",
-    "serve": "docusaurus serve",
+    "serve": "docusaurus serve --port 3002",
     "serve:build": "docusaurus serve --port 3002"
   },
   "dependencies": {
