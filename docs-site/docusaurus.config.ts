@@ -22,7 +22,7 @@ try {
 const config: Config = {
   title: 'Sommelier Arena',
   tagline: 'Real-time blind wine tasting quiz — developer docs',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/favicon.svg',
 
   url: 'https://sommelier-arena.ducatillon.net',
   baseUrl,

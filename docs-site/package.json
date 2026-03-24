@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "start": "docusaurus start",
-    "start:local": "cross-env DOCS_BASE_URL=/ docusaurus start",
+    "start:local": "cross-env DOCS_BASE_URL=/docs docusaurus start",
     "build": "docusaurus build",
-    "build:local": "cross-env DOCS_BASE_URL=/ docusaurus build",
+    "build:local": "cross-env DOCS_BASE_URL=/docs docusaurus build",
     "build:prod": "cross-env DOCS_BASE_URL=/docs docusaurus build",
     "serve": "docusaurus serve",
     "serve:build": "docusaurus serve --port 3002"
@@ -22,7 +22,8 @@
   "devDependencies": {
     "@docusaurus/module-type-aliases": "^3.1.0",
     "@docusaurus/types": "^3.1.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "cross-env": "^7.0.3"
   },
   "browserslist": {
     "production": [">0.5%", "not dead", "not op_mini all"],
