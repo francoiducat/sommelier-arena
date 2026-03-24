@@ -89,6 +89,11 @@ const config: Config = {
 
     navbar: {
       title: '🍷 Sommelier Arena',
+      logo: {
+        alt: 'Sommelier Arena',
+        src: 'img/favicon.svg',
+        href: 'https://sommelier-arena.ducatillon.net/',
+      },
       items: [
         {
           type: 'docSidebar',

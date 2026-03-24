@@ -40,8 +40,9 @@ jobs:
         run: npm --prefix front test
 
       - name: Start Docker stack (compose)
-        run: |
-          docker-compose up --build -d
+        uses: docker/compose-action@v3
+        with:
+          args: up --build -d
 
       - name: Wait for frontend to be ready
         run: |
@@ -62,5 +63,6 @@ jobs:
 
       - name: Tear down docker stack
         if: always()
-        run: |
-          docker-compose down
+        uses: docker/compose-action@v3
+        with:
+          args: down
