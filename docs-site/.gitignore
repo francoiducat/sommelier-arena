@@ -1,0 +1,5 @@
+# Local overrides
+.env
+
+# Node modules (not strictly necessary at site root, but safe)
+node_modules/
