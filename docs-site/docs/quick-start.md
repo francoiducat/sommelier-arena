@@ -74,11 +74,11 @@ npm run start:local
 # → http://localhost:3002
 ```
 
-### Docs site — local search
+### Docs site — local search & preview
 
 This project uses a local, file-based search plugin for Docusaurus to provide a search box in the docs navbar.
 
-Quick start (local):
+Quick start (dev):
 
 1. Install dependencies:
 
@@ -87,26 +87,35 @@ Quick start (local):
    npm ci
    ```
 
-2. Start the dev server:
+2. Start the dev server (live reload):
 
    ```bash
    npm run start:local
    ```
 
-3. Open http://localhost:3002 (or your DOCS_BASE_URL) and use the search box in the navbar.
+3. Open http://localhost:3002 and use the search box in the navbar.
 
-Preview built site:
+Preview built site (parity with production)
+
+This repository standardizes on building the docs for deployment under `/docs` (Cloudflare Pages). To preview the site exactly as production will serve it:
 
 ```bash
-npm run serve
+# Build with DOCS_BASE_URL=/docs
+cd docs-site
+npm run build:local
+
+# Serve the built site mounted at /docs
+npm run serve:docs
+# → http://localhost:3002/docs
 ```
 
-This serves the built static site on port 3002 by default.
+If you prefer to preview the site at root (`/`), build with `DOCS_BASE_URL=/` and use `npm run serve` to open http://localhost:3002/.
 
 Notes
 - The plugin dependency (@cmfcmf/docusaurus-search-local) is declared in package.json and will be installed by `npm ci`.
 - The site configuration in docusaurus.config.ts will load the plugin if installed. If you build the docs inside Docker or CI, `npm ci` in the Dockerfile will ensure the plugin is available at build time.
 - If `npm ci` fails in your environment, inspect the npm logs and ensure a network/proxy is configured correctly.
+- See the Testing & Preview page for more details: [Testing & Preview](./testing-and-preview).
 
 ## Run tests
 
