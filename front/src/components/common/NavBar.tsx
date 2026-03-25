@@ -4,7 +4,7 @@ import { useCurrentUrl } from '../../hooks/useCurrentUrl';
 const DOCS_URL =
   typeof window !== 'undefined' && window.location.hostname === 'localhost'
     ? `http://localhost:3002`
-    : 'https://sommelier-arena.ducatillon.net/docs';
+    : 'https://sommelier-arena.ducatillon.net/docs/';
 
 export function NavBar() {
   const currentUrl = useCurrentUrl();
@@ -56,7 +56,6 @@ export function NavBar() {
         </a>
         <a
           href={DOCS_URL}
-          target="_blank"
           rel="noopener noreferrer"
           className="text-slate-500 hover:text-slate-800 transition-colors px-2 py-1 rounded-lg hover:bg-slate-100"
         >
