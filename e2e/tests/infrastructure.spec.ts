@@ -40,11 +40,11 @@ test.describe('Infrastructure', () => {
     ).toBeLessThan(500);
   });
 
-  test('Frontend loads on port 3000 @infra @smoke', async ({ page }) => {
-    const res = await page.goto('http://localhost:3000/');
+  test('Frontend loads on port 4321 @infra @smoke', async ({ page }) => {
+    const res = await page.goto('http://localhost:4321/');
     expect(
       res?.status(),
-      'GET http://localhost:3000/ must return 200. Is the front service running?',
+      'GET http://localhost:4321/ must return 200. Is the front service running?',
     ).toBe(200);
     await expect(page.getByRole('heading', { name: /sommelier arena/i })).toBeVisible();
   });

@@ -19,8 +19,10 @@ test.describe('Mobile UX', () => {
   });
 
   test('Home page — buttons are tappable (≥ 44 px) @mobile @smoke', async ({ page }) => {
-    const hostBtn = page.getByRole('link', { name: /host/i });
-    const joinBtn = page.getByRole('link', { name: /join|participant/i });
+    // Scope to main to avoid NavBar links (e.g. "Host a Game") matching the same name
+    const main = page.getByRole('main');
+    const hostBtn = main.getByRole('link', { name: /host/i });
+    const joinBtn = main.getByRole('link', { name: /join|participant/i });
 
     for (const btn of [hostBtn, joinBtn]) {
       const box = await btn.boundingBox();

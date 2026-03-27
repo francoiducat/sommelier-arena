@@ -16,7 +16,8 @@ test.describe('Home Page', () => {
 
   test('Home - Host button navigates to /host', async ({ page }) => {
     await test.step('Click the Host link', async () => {
-      await page.getByRole('link', { name: /host/i }).click();
+      // Use the main area link to avoid ambiguity with NavBar's "Host a Game" link
+      await page.getByRole('main').getByRole('link', { name: "I'm the Host" }).click();
     });
 
     await test.step('Verify navigation to /host', async () => {
