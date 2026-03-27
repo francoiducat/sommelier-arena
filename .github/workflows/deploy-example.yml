@@ -1,0 +1,37 @@
+name: Deploy Example (Cloudflare)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+      CF_PAGES_PROJECT_NAME: ${{ secrets.CF_PAGES_PROJECT_NAME }}
+      ZONE_ID: ${{ secrets.ZONE_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install deps
+        run: npm ci
+      - name: Deploy PartyKit and capture host
+        run: |
+          set -euo pipefail
+          PARTYKIT_OUTPUT=$(npx partykit deploy 2>&1)
+          echo "$PARTYKIT_OUTPUT"
+          PARTYKIT_URL=$(echo "$PARTYKIT_OUTPUT" | grep -oE "https?://[a-zA-Z0-9.-]+\.partykit\.dev" || true)
+          if [ -z "$PARTYKIT_URL" ]; then echo "PartyKit deploy did not return a URL"; exit 1; fi
+          PARTYKIT_HOST=${PARTYKIT_URL#https://}
+          echo "PARTYKIT_HOST=$PARTYKIT_HOST" >> $GITHUB_ENV
+      - name: Build and publish frontend
+        run: |
+          PUBLIC_PARTYKIT_HOST=$PARTYKIT_HOST npm --prefix front run build
+          npx wrangler pages publish ./front/dist --project-name $CF_PAGES_PROJECT_NAME
+      - name: Deploy proxy worker
+        run: |
+          npx wrangler deploy --account-id $CF_ACCOUNT_ID --var DOCS_ORIGIN=https://${CF_PAGES_PROJECT_NAME}.pages.dev

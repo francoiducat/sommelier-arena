@@ -2,7 +2,14 @@
 id: quick-start
 title: Quick Start
 sidebar_label: Quick Start
+deprecated: true
+redirect_to: deployment-and-deploy
 ---
+
+> NOTE: Deployment and Pages instructions formerly here have moved to [Deployment & Deploy](./deployment-and-deploy). Quick Start still contains local development modes; see the canonical deployment doc for production.
+
+<!-- Partial page preserved; refer to canonical docs for deploy steps. -->
+
 
 # Quick Start
 

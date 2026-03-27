@@ -7,7 +7,7 @@ const sidebars: SidebarsConfig = {
       type: 'category',
       label: 'Getting Started',
       collapsed: false,
-      items: ['quick-start', 'cloudflare-setup', 'deployment'],
+      items: ['get-started', 'quick-start', 'deployment-and-deploy'],
     },
     {
       type: 'category',
@@ -30,6 +30,12 @@ const sidebars: SidebarsConfig = {
         'local-vs-prod',
         'host-identity',
         'proxy-worker',
+        {
+          type: 'category',
+          label: 'Personas',
+          collapsed: true,
+          items: ['for-developers', 'for-product', 'for-partners', 'for-automation'],
+        },
       ],
     },
     {

@@ -26,8 +26,8 @@ Everything runs on **Cloudflare**: the frontend is a static Astro site on Cloudf
 | [Event Reference](event-reference) | All WebSocket message types (client ↔ server) |
 | [Host Identity](host-identity) | `TANNIC-FALCON`-style IDs, session dashboard, rejoin |
 | [Data Persistence](data-persistence) | DO storage keys, KV schema, what survives a restart |
-| [Deployment](deployment) | Cloudflare Pages + PartyKit deploy guide |
-| [Cloudflare Setup](cloudflare-setup) | Step-by-step Cloudflare dashboard walkthrough |
+| [Deployment & Deploy](deployment-and-deploy) | Cloudflare Pages + PartyKit deploy guide |
+| [Cloudflare Setup](deployment-and-deploy) | Step-by-step Cloudflare dashboard walkthrough |
 | [Contributing & Env](env) | Dev workflow, branch strategy, PR checklist, and environment setup |
 
 ## What's new in v2.0 (PartyKit)

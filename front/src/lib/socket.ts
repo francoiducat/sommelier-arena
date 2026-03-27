@@ -1,7 +1,7 @@
 import PartySocket from 'partysocket';
 
 // In Docker/production: PUBLIC_PARTYKIT_HOST is set via build arg or Pages dashboard.
-// In local dev (Mode A): front/.env.local sets PUBLIC_PARTYKIT_HOST=localhost:1999.
+// In local dev (Mode A): front/.env sets PUBLIC_PARTYKIT_HOST=localhost:1999.
 const PARTYKIT_HOST =
   (import.meta as ImportMeta & { env: Record<string, string> }).env.PUBLIC_PARTYKIT_HOST ||
   'localhost:1999';

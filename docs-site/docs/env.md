@@ -1,3 +1,9 @@
+---
+id: env
+title: Environment Variables
+sidebar_label: Env
+---
+
 Environment variables and .env strategy (full-stack)
 
 This document explains how environment variables are managed across the monorepo (front, back, docs-site) and how to configure them for local development, Docker, and production.

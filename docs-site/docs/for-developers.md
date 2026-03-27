@@ -1,0 +1,22 @@
+---
+id: for-developers
+title: For Developers
+sidebar_label: For Developers
+audience: developer
+tags: [onboarding, dev, setup]
+---
+
+# For Developers
+
+This page is the developer entrypoint. It links to quick start, local vs prod, testing, architecture, and deployment guides.
+
+Useful links:
+
+- [Quick Start](./quick-start) — local development modes (fast dev, docker, docs preview)
+- [Local vs Production](./local-vs-prod) — environment differences
+- [Testing & Preview](./testing-and-preview) — how to run unit and E2E tests
+- [Architecture](./architecture) — system architecture and diagrams
+- [Deployment & Deploy](./deployment-and-deploy) — production deploy, Cloudflare, Wrangler
+- [Tech Stack](./tech-stack) — technology overview
+
+If you are automating deployments or writing CI, start with the Deployment & Deploy guide and the examples in `/.github/workflows/`.

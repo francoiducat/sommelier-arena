@@ -82,7 +82,7 @@ This is used in `upsertKvSession()` in `back/game.ts` and is called when a sessi
 
 **Local dev**: The `HOSTS_KV` binding is not defined in `partykit.json`, so `room.context.bindings.HOSTS_KV` is `undefined`. The `upsertKvSession()` function is wrapped in a `try/catch` that silently skips the KV write. **This is intentional and safe** — the app continues working via localStorage.
 
-**Production**: A real Cloudflare KV namespace (see [Cloudflare Setup](./cloudflare-setup.md) for how to create and bind it). Enables a host to see their sessions when opening the app on a new browser or device, since the server can serve the session list from KV independent of localStorage.
+**Production**: A real Cloudflare KV namespace (see [Deployment & Deploy](./deployment-and-deploy.md) for how to create and bind it). Enables a host to see their sessions when opening the app on a new browser or device, since the server can serve the session list from KV independent of localStorage.
 
 ---
 
@@ -131,4 +131,4 @@ Browser                           Cloudflare (production)
 | Host dashboard shows sessions from previous dev session | localStorage persists across restarts; use 🗑 to clean up |
 | Participant can't rejoin after `partykit dev` restart | Expected — rejoin tokens are stored in DO storage (in-memory) |
 | Session list only shows in one browser | KV is not available locally; localStorage is per-browser |
-| Works locally but missing sessions in prod | `HOSTS_KV` binding not configured — see [Cloudflare Setup](./cloudflare-setup.md) |
+| Works locally but missing sessions in prod | `HOSTS_KV` binding not configured — see [Deployment & Deploy](./deployment-and-deploy.md) |

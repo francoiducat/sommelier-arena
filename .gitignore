@@ -12,8 +12,8 @@ coverage/
 
 # Env (keep example, ignore actual)
 .env
-*.env.local
 .env.local
+*.env.local
 
 # E2E test artifacts (generated — do not commit)
 e2e/playwright-report/
@@ -30,8 +30,13 @@ npm-debug.log*
 **/entire.json
 .gemini/
 
+# Editor / IDE
 .vscode/
 
+# Wrangler local state
 .wrangler/
 
-package-lock.json
+# Note: package-lock.json is tracked in the repository for deterministic installs.
+# If you intentionally want to ignore lockfiles, remove this comment and add the lockfile name here.
+
+.partykit/

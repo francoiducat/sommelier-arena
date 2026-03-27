@@ -1,10 +1,10 @@
 import React from 'react';
 import { useCurrentUrl } from '../../hooks/useCurrentUrl';
 
-const DOCS_URL =
-  typeof window !== 'undefined' && window.location.hostname === 'localhost'
-    ? `http://localhost:3002`
-    : 'https://sommelier-arena.ducatillon.net/docs/';
+const DOCS_URL: string = (import.meta as any).env?.PUBLIC_DOCS_URL ||
+  (typeof window !== 'undefined' && window.location.hostname === 'localhost'
+    ? `http://localhost:3002/docs`
+    : 'https://sommelier-arena.ducatillon.net/docs');
 
 export function NavBar() {
   const currentUrl = useCurrentUrl();

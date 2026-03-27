@@ -2,7 +2,14 @@
 id: cloudflare-setup
 title: Cloudflare Dashboard Setup
 sidebar_label: Cloudflare Setup
+deprecated: true
+redirect_to: deployment-and-deploy
 ---
+
+> NOTE: Cloudflare dashboard and Wrangler guidance has been moved to the canonical [Deployment & Deploy](./deployment-and-deploy) doc. Use that page for CLI-first instructions and CI examples.
+
+<!-- Deprecated dashboard walkthrough preserved for reference. -->
+
 
 # Cloudflare Dashboard Setup
 

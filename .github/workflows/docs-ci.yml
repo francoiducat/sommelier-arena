@@ -1,0 +1,35 @@
+name: Docs CI
+
+on:
+  push:
+    paths:
+      - 'docs-site/**'
+  pull_request:
+    paths:
+      - 'docs-site/**'
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install deps
+        run: |
+          cd docs-site
+          npm ci
+      - name: Build docs
+        run: |
+          cd docs-site
+          npm run build
+      - name: Check for broken links
+        run: |
+          # Docusaurus build already warns about broken links; fail if any 'WARN' appears
+          cd docs-site
+          npm run build 2>&1 | tee build.log || true
+          if grep -n "\[WARN\|warning\]" build.log; then
+            echo "Warnings found in docs build:"; grep -n "\[WARN\|warning\]" build.log; exit 1
+          fi

@@ -1,10 +1,17 @@
 ---
 id: deployment
-title: Prod Deployment
-sidebar_label: Prod Deployment
+title: Deployment
+sidebar_label: Deployment
+deprecated: true
+redirect_to: deployment-and-deploy
 ---
 
-# Prod Deployment
+> **This page has been consolidated.** All deployment steps are now in the canonical guide:
+> → [Deployment & Deploy](./deployment-and-deploy)
+
+<!-- Deprecated page preserved for history. -->
+
+# Deployment
 
 The production stack runs entirely on Cloudflare's free tier.
 
@@ -70,11 +77,7 @@ In Cloudflare Pages → front/docs project → **Custom domains** → Add domain
 
 ## Step 6 — Proxy Worker for /docs route
 
-1. **Create Worker**
-
 Wrangler required.
-
-Recommended (wrangler.toml + deploy):
 
 Create a simple `wrangler.toml` at the repo root:
 
@@ -88,26 +91,28 @@ Then publish from the repo root:
 
 ```bash
 npx wrangler whoami   # verify auth
-# Example deploy with DOCS_ORIGIN set (replace URL with your pages.dev domain):
 npx wrangler deploy --var DOCS_ORIGIN=https://sommelier-arena-docs.pages.dev
 ```
 
-Notes:
-- Wrangler will compile TypeScript and bundle dependencies.
+After the worker exists, create the route:
+- Cloudflare Dashboard → Workers → `sommelier-arena-proxy` → Triggers → Add route:
+  - Route: `sommelier-arena.ducatillon.net/docs*`
+  - Zone: `ducatillon.net`
 
-After the worker exists:
-
-2. Create the route (Dashboard):
-   - Cloudflare Dashboard → Workers → open `sommelier-arena-proxy` → Triggers → Add route:
-     - Route: `sommelier-arena.ducatillon.net/docs*`
-     - Zone: `ducatillon.net`
-   - Save. The route is applied immediately.
-
-3. Verify or add the `DOCS_ORIGIN` environment variable (Dashboard)
-   - Cloudflare Dashboard → Workers → select `sommelier-arena-proxy` → Settings → Variables & Bindings → Add:
-     - Name: `DOCS_ORIGIN`
-     - Value: `https://sommelier-arena-docs.pages.dev`
-   - Save.
-
-Verification
+Verification:
 - Open https://sommelier-arena.ducatillon.net/docs and confirm the docs site loads.
+
+Notes and CI recommendation:
+- `DOCS_ORIGIN` must match the Pages project deployed in Step 4.
+- Recommended: capture Pages URL in CI after docs deploy and publish the worker with `DOCS_ORIGIN` injected.
+- Manual quick fix: deploy docs Pages project, copy pages.dev URL, then `npx wrangler deploy --var DOCS_ORIGIN=<URL>`.
+
+The proxy worker also routes `/docs/*` to the Docusaurus Pages project, keeping everything under one domain. See [Proxy Worker](proxy-worker) for full details.
+
+> See [Deployment & Deploy](./deployment-and-deploy) for a step-by-step guide and CLI-first instructions.
+
+## Rollback
+
+Cloudflare Pages keeps deployment history. Roll back via dashboard → Deployments → select older deployment → **Rollback to this deployment**.
+
+For PartyKit, there is no built-in rollback — redeploy the previous git commit.
