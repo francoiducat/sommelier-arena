@@ -26,20 +26,10 @@ export function HostLobby({ code, participants, onStart }: HostLobbyProps) {
   const shareUrl = getPlayShareUrl();
   return (
     <div className="w-full max-w-lg mx-auto space-y-8 text-center">
-      <div>
-        <p className="text-sm text-slate-500 uppercase tracking-widest mb-2">
-          Session Code
-        </p>
-        <div className="inline-block bg-wine-50 border border-wine-200 rounded-2xl px-8 py-4">
-          <span className="text-5xl font-bold font-mono text-wine-700 tracking-widest">
-            {code}
-          </span>
-        </div>
-        <p className="text-slate-400 text-sm mt-2">
-          Share this code with participants at{' '}
-          <span className="font-medium text-slate-600">{shareUrl}</span>
-        </p>
-      </div>
+      <p className="text-slate-400 text-sm">
+        Participants join at{' '}
+        <span className="font-medium text-slate-600">{shareUrl}</span>
+      </p>
 
       <div className="bg-white border border-slate-200 rounded-2xl p-5">
         <div className="flex items-center justify-between mb-4">
@@ -73,7 +63,7 @@ export function HostLobby({ code, participants, onStart }: HostLobbyProps) {
       <button
         onClick={onStart}
         disabled={participants.length === 0}
-        className="w-full bg-gradient-to-b from-wine-800 to-wine-500 text-white rounded-xl py-4 font-semibold text-lg hover:from-wine-900 hover:to-wine-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        className="w-full bg-gradient-to-b from-wine-500 to-wine-800 text-white rounded-xl py-4 font-semibold text-lg hover:from-wine-600 hover:to-wine-900 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
         Start Game
       </button>

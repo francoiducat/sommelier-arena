@@ -4,9 +4,9 @@ import React from 'react';
 import { HostLobby } from '../../../components/host/HostLobby';
 
 describe('HostLobby', () => {
-  it('renders the session code', () => {
+  it('shows the participant join URL', () => {
     render(<HostLobby code="4829" participants={[]} onStart={vi.fn()} />);
-    expect(screen.getByText('4829')).toBeInTheDocument();
+    expect(screen.getByText(/participants join at/i)).toBeInTheDocument();
   });
 
   it('shows participant count', () => {

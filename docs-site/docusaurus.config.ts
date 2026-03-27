@@ -107,7 +107,7 @@ const config: Config = {
         },
         {
           href: 'https://github.com/francoiducat/sommelier-arena',
-          label: 'Git Repository',
+          label: 'Contribute to Git Repository',
           position: 'left',
         },
         {

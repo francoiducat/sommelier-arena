@@ -10,8 +10,12 @@ import Footer from '../components/common/Footer.astro';
     <title>Host — Sommelier Arena</title>
   </head>
   <body class="flex flex-col min-h-screen">
-    <main class="flex-1">
-      <HostApp client:only="react" />
+    <main class="flex-1 flex flex-col">
+      <HostApp client:only="react">
+        <div slot="fallback" class="flex-1 flex items-center justify-center min-h-[60vh] text-slate-400">
+          Loading…
+        </div>
+      </HostApp>
     </main>
     <Footer />
   </body>
