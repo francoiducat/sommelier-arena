@@ -26,13 +26,14 @@ npx partykit dev
 `npx partykit dev` runs a **local in-memory simulator** — it emulates Cloudflare Durable Objects entirely on your machine with no internet connection required. Note: Cloudflare KV (`HOSTS_KV`) is not available locally; session history comes from browser localStorage only. See [Local vs Production](./local-vs-prod) for the full comparison.
 :::
 
+```bash
 # Terminal 2 — Astro frontend (port 4321)
 cd front
-cp .env.example .env.local   # PUBLIC_PARTYKIT_HOST=localhost:1999
+cp .env.example .env.local # PUBLIC_PARTYKIT_HOST=localhost:1999
 npm run dev
 ```
 
-Open `http://localhost:4321/host` (host) and `http://localhost:4321/play` (participant).
+Open [http://localhost:4321/host](http://localhost:4321/host) (host) and [http://localhost:4321/play](http://localhost:4321/play) (participant).
 
 ## Mode B — Full integration (Docker)
 
@@ -44,9 +45,9 @@ docker-compose up --build
 
 | Service | URL |
 |---------|-----|
-| Frontend (nginx) | `http://localhost:4321` |
-| PartyKit backend | `http://localhost:1999` |
-| Docs (Docusaurus) | `http://localhost:3002` |
+| Frontend (nginx) | [http://localhost:4321](http://localhost:4321) |
+| PartyKit backend | [http://localhost:1999](http://localhost:1999) |
+| Docs (Docusaurus) | [http://localhost:3002](http://localhost:3002) |
 
 ### Docker cheat sheet
 
@@ -93,7 +94,7 @@ Quick start (dev):
    npm run start:local
    ```
 
-3. Open http://localhost:3002 and use the search box in the navbar.
+3. Open [http://localhost:3002](http://localhost:3002) and use the search box in the navbar.
 
 Preview built site (parity with production)
 
@@ -109,9 +110,10 @@ npm run serve:docs
 # → http://localhost:3002/docs
 ```
 
-If you prefer to preview the site at root (`/`), build with `DOCS_BASE_URL=/` and use `npm run serve` to open http://localhost:3002/.
+If you prefer to preview the site at root (`/`), build with `DOCS_BASE_URL=/` and use `npm run serve` to open [http://localhost:3002/](http://localhost:3002/).
 
 Notes
+
 - The plugin dependency (@cmfcmf/docusaurus-search-local) is declared in package.json and will be installed by `npm ci`.
 - The site configuration in docusaurus.config.ts will load the plugin if installed. If you build the docs inside Docker or CI, `npm ci` in the Dockerfile will ensure the plugin is available at build time.
 - If `npm ci` fails in your environment, inspect the npm logs and ensure a network/proxy is configured correctly.

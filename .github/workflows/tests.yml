@@ -8,61 +8,84 @@ on:
   pull_request:
 
 jobs:
-  tests:
-    name: Unit + E2E
+  unit-tests:
+    name: Unit Tests (front)
     runs-on: ubuntu-latest
-    env:
-      CI: 'true'
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
-
-      - name: Cache node modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
+          cache: 'npm'
+          cache-dependency-path: front/package-lock.json
 
       - name: Install frontend dependencies
         run: npm --prefix front ci
 
-      - name: Run frontend unit tests
-        run: npm --prefix front test
+      - name: Run unit tests
+        run: npm --prefix front test -- --reporter=verbose
 
-      - name: Start Docker stack (compose)
-        uses: docker/compose-action@v3
+  e2e-tests:
+    name: E2E Tests (Playwright / Chromium)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
         with:
-          args: up --build -d
+          node-version: '20'
 
+      # Build and start the full Docker stack (back + front + docs)
+      - name: Build Docker stack
+        run: docker-compose build
+
+      - name: Start Docker stack
+        run: docker-compose up -d
+
+      # Wait for front (port 3000) and back (port 1999) to become healthy
       - name: Wait for frontend to be ready
         run: |
-          for i in {1..60}; do
-            if curl -sSf http://localhost:4321/ >/dev/null; then echo "frontend up" && break; fi
-            echo "waiting for frontend... ($i)"; sleep 2;
+          for i in $(seq 1 60); do
+            if curl -sSf http://localhost:3000/ > /dev/null 2>&1; then
+              echo "Frontend is up after ${i} attempts"
+              break
+            fi
+            echo "Waiting for frontend... attempt $i/60"
+            sleep 3
           done
+          curl -sSf http://localhost:3000/ || (echo "Frontend never became ready" && exit 1)
 
-      - name: Install Playwright browsers
+      - name: Wait for PartyKit backend to be ready
+        run: |
+          for i in $(seq 1 60); do
+            if curl -sSf http://localhost:1999/ > /dev/null 2>&1; then
+              echo "Backend is up after ${i} attempts"
+              break
+            fi
+            echo "Waiting for backend... attempt $i/60"
+            sleep 3
+          done
+          curl -sSf http://localhost:1999/ || (echo "Backend never became ready" && exit 1)
+
+      - name: Install Playwright + browsers
         working-directory: ./e2e
         run: |
           npm ci
-          npx playwright install --with-deps
+          npx playwright install chromium --with-deps
 
-      - name: Run Playwright E2E tests
+      - name: Run E2E tests (Chromium only)
         working-directory: ./e2e
-        run: npm test -- --reporter=dot
+        run: npx playwright test --project=chromium --reporter=dot
 
-      - name: Tear down docker stack
-        if: always()
-        uses: docker/compose-action@v3
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
         with:
-          args: down
+          name: playwright-report
+          path: e2e/playwright-report/
+          retention-days: 7
+
+      - name: Stop Docker stack
+        if: always()
+        run: docker-compose down

@@ -88,7 +88,7 @@ const config: Config = {
     // Local search only: the local plugin injects a search bar into the navbar.
 
     navbar: {
-      title: '🍷 Sommelier Arena',
+      title: '🍷 Play with Sommelier Arena',
       logo: {
         alt: 'Sommelier Arena',
         src: 'img/favicon.svg',
@@ -99,7 +99,12 @@ const config: Config = {
           type: 'docSidebar',
           sidebarId: 'docs',
           position: 'left',
-          label: 'Docs',
+          label: 'Read the Docs',
+        },
+        {
+          href: 'https://github.com/francoiducat/sommelier-arena',
+          label: 'Git Repository',
+          position: 'left',
         },
         {
           type: 'docsVersionDropdown',
