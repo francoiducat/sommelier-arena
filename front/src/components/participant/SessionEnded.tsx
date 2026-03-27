@@ -11,7 +11,7 @@ export function SessionEnded() {
         </p>
         <a
           href="/"
-          className="inline-block mt-4 bg-violet-600 text-white rounded-xl px-6 py-3 font-semibold hover:bg-violet-700 transition-colors"
+          className="inline-block mt-4 bg-wine-600 text-white rounded-xl px-6 py-3 font-semibold hover:bg-wine-700 transition-colors"
         >
           Back to Home
         </a>

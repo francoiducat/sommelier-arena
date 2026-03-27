@@ -23,7 +23,7 @@ npx partykit dev
 ```
 
 :::tip No Cloudflare account needed for local dev
-`npx partykit dev` runs a **local in-memory simulator** — it emulates Cloudflare Durable Objects entirely on your machine with no internet connection required. Note: Cloudflare KV (`HOSTS_KV`) is not available locally; session history comes from browser localStorage only. See [Local vs Production](./local-vs-prod) for the full comparison.
+`npx partykit dev` runs a **local in-memory simulator** — it emulates Cloudflare Durable Objects entirely on your machine with no internet connection required. Note: Cloudflare KV (`HOSTS_KV`) is not available locally; session history comes from browser localStorage only. See [Configuration & Environments](./configuration) for the full comparison.
 :::
 
 ```bash
@@ -48,6 +48,20 @@ docker-compose up --build
 | Frontend (nginx) | [http://localhost:4321](http://localhost:4321) |
 | PartyKit backend | [http://localhost:1999](http://localhost:1999) |
 | Docs (Docusaurus) | [http://localhost:3002](http://localhost:3002) |
+
+### Why nginx?
+
+In Mode B, the `front` container runs **nginx** instead of the Astro dev server. nginx is necessary because:
+
+1. **Astro builds to static files** — `npm run build` produces plain HTML/JS/CSS; there's no Node.js server at request time, so something must serve them.
+2. **SPA routing** — nginx's `try_files $uri $uri/index.html /index.html` ensures `/host` and `/play` return `index.html` without a 404.
+3. **Same-origin WebSocket proxy** — nginx forwards `/parties/*` requests to the PartyKit backend container on port 1999, keeping browser–backend traffic on a single origin (no CORS).
+
+`absolute_redirect off` in `front/nginx.conf` ensures nginx uses relative `Location` headers, so the host port (4321) is never stripped from redirects.
+
+**For daily development, you don't need nginx at all** — Mode A uses Astro's built-in dev server on port 4321, which handles routing and WebSocket proxy natively via `PUBLIC_PARTYKIT_HOST`.
+
+**Alternative:** [Caddy](https://caddyserver.com/) provides equivalent functionality with a simpler config syntax. See [Configuration & Environments](./configuration) for the full nginx walkthrough and Caddy comparison.
 
 ### Docker cheat sheet
 
@@ -117,7 +131,7 @@ Notes
 - The plugin dependency (@cmfcmf/docusaurus-search-local) is declared in package.json and will be installed by `npm ci`.
 - The site configuration in docusaurus.config.ts will load the plugin if installed. If you build the docs inside Docker or CI, `npm ci` in the Dockerfile will ensure the plugin is available at build time.
 - If `npm ci` fails in your environment, inspect the npm logs and ensure a network/proxy is configured correctly.
-- See the Testing & Preview page for more details: [Testing & Preview](./testing-and-preview).
+- See the [Configuration & Environments](./configuration) page for env var details, nginx explanation, and storage layer breakdown.
 
 ## Run tests
 

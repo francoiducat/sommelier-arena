@@ -25,7 +25,7 @@ export function FinalLeaderboard({ rankings, pseudonym }: FinalLeaderboardProps)
           {pseudonym && myRank > 0 && (
             <p className="text-slate-500 mt-2">
               You finished{' '}
-              <span className="font-bold text-violet-600">#{myRank}</span> as{' '}
+              <span className="font-bold text-wine-600">#{myRank}</span> as{' '}
               <span className="font-medium text-slate-700">{pseudonym}</span>
             </p>
           )}
@@ -38,7 +38,7 @@ export function FinalLeaderboard({ rankings, pseudonym }: FinalLeaderboardProps)
 
         <button
           onClick={handlePlayAgain}
-          className="w-full bg-violet-600 text-white rounded-xl py-3 font-semibold hover:bg-violet-700 transition-colors"
+          className="w-full bg-wine-600 text-white rounded-xl py-3 font-semibold hover:bg-wine-700 transition-colors"
         >
           Play Another Session
         </button>

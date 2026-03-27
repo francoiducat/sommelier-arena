@@ -10,7 +10,7 @@
 import { chromium } from '@playwright/test';
 
 const PARTYKIT_URL = 'http://localhost:1999/';
-const FRONT_URL = 'http://localhost:3000/';
+const FRONT_URL = 'http://localhost:4321/';
 const POLL_INTERVAL_MS = 1_000;
 const TIMEOUT_MS = 15_000;
 

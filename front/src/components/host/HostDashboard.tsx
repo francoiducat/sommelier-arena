@@ -32,14 +32,14 @@ export function HostDashboard({
           <h1 className="text-3xl font-bold text-slate-800">Sommelier Arena</h1>
           <p className="text-sm text-slate-500 mt-1">
             Your host ID:{' '}
-            <span className="font-mono font-bold text-violet-600">{hostId}</span>
+            <span className="font-mono font-bold text-wine-600">{hostId}</span>
           </p>
         </div>
 
         {/* New session button */}
         <button
           onClick={onNewSession}
-          className="w-full bg-violet-600 text-white rounded-xl py-4 font-semibold text-lg hover:bg-violet-700 transition-colors"
+          className="w-full bg-wine-600 text-white rounded-xl py-4 font-semibold text-lg hover:bg-wine-700 transition-colors"
         >
           + New Session
         </button>
@@ -76,7 +76,7 @@ export function HostDashboard({
                   <div className="flex gap-2 flex-shrink-0">
                     <button
                       onClick={() => onOpenSession(session.code)}
-                      className="bg-violet-600 text-white rounded-xl px-5 py-2 font-semibold hover:bg-violet-700 transition-colors text-sm"
+                      className="bg-wine-600 text-white rounded-xl px-5 py-2 font-semibold hover:bg-wine-700 transition-colors text-sm"
                     >
                       Open
                     </button>

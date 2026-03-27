@@ -28,7 +28,7 @@ export function NavBar() {
       {/* Logo / Home */}
       <a
         href="/"
-        className="flex items-center gap-1.5 font-bold text-violet-600 hover:text-violet-800 transition-colors shrink-0"
+        className="flex items-center gap-1.5 font-bold text-wine-600 hover:text-wine-800 transition-colors shrink-0"
         aria-label="Sommelier Arena — home"
       >
         🍷 <span className="hidden sm:inline">Sommelier Arena</span>
@@ -37,47 +37,29 @@ export function NavBar() {
       {/* Nav links */}
       <div className="flex items-center gap-2 ml-1">
         <a
-          href="/"
-          className="text-slate-500 hover:text-slate-800 transition-colors px-2 py-1 rounded-lg hover:bg-slate-100"
-        >
-          Home
-        </a>
-        <a
           href="/host"
           className="text-slate-500 hover:text-slate-800 transition-colors px-2 py-1 rounded-lg hover:bg-slate-100"
         >
-          Host
+          Host a Game
         </a>
         <a
           href="/play"
           className="text-slate-500 hover:text-slate-800 transition-colors px-2 py-1 rounded-lg hover:bg-slate-100"
         >
-          Play
+          Let's Play
         </a>
         <a
           href={DOCS_URL}
-          rel="noopener noreferrer"
           className="text-slate-500 hover:text-slate-800 transition-colors px-2 py-1 rounded-lg hover:bg-slate-100"
         >
-          Docs
+          Read the Docs
         </a>
-      </div>
-
-      {/* Current URL display — always visible, auto-tracks via useCurrentUrl() */}
-      <div className="ml-auto flex items-center gap-2 min-w-0">
-        <span
-          className="font-mono text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 truncate max-w-[200px] sm:max-w-xs"
-          title={currentUrl}
+        <a
+          href="https://github.com/ducatillon/sommelier-arena"
+          className="text-slate-500 hover:text-slate-800 transition-colors px-2 py-1 rounded-lg hover:bg-slate-100"
         >
-          {currentUrl}
-        </span>
-        <button
-          onClick={handleCopy}
-          className="shrink-0 text-xs border border-slate-300 text-slate-600 rounded-lg px-2 py-1 hover:bg-slate-100 transition-colors"
-          aria-label="Copy current URL to clipboard"
-        >
-          {copied ? '✓' : '📋'}
-        </button>
+          Git Repository
+        </a>
       </div>
     </nav>
   );

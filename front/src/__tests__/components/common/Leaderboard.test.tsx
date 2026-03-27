@@ -27,7 +27,7 @@ describe('Leaderboard', () => {
     const { container } = render(
       <Leaderboard rankings={rankings} highlightPseudonym="Bob" />,
     );
-    const highlighted = container.querySelector('.bg-violet-50');
+    const highlighted = container.querySelector('.bg-wine-50');
     expect(highlighted).toBeInTheDocument();
     expect(highlighted).toHaveTextContent('Bob');
   });

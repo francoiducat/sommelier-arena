@@ -13,8 +13,7 @@ This page is the developer entrypoint. It links to quick start, local vs prod, t
 Useful links:
 
 - [Quick Start](./quick-start) — local development modes (fast dev, docker, docs preview)
-- [Local vs Production](./local-vs-prod) — environment differences
-- [Testing & Preview](./testing-and-preview) — how to run unit and E2E tests
+- [Configuration & Environments](./configuration) — environment differences, env vars, nginx explanation, testing & preview
 - [Architecture](./architecture) — system architecture and diagrams
 - [Deployment & Deploy](./deployment-and-deploy) — production deploy, Cloudflare, Wrangler
 - [Tech Stack](./tech-stack) — technology overview

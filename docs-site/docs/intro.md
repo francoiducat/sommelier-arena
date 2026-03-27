@@ -66,4 +66,4 @@ Everything runs on **Cloudflare**: the frontend is a static Astro site on Cloudf
 | [Host Identity](host-identity) | `TANNIC-FALCON`-style IDs, session dashboard, rejoin |
 | [Data Persistence](data-persistence) | DO storage keys, KV schema, what survives a restart |
 | [Deployment Guide](deployment-and-deploy) | Cloudflare Pages + PartyKit + Wrangler deploy |
-| [Env Variables](env) | Environment variable reference for all services |
+| [Configuration & Environments](configuration) | Env vars, local vs prod, nginx explanation, testing preview |

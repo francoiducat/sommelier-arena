@@ -43,18 +43,18 @@ jobs:
       - name: Start Docker stack
         run: docker-compose up -d
 
-      # Wait for front (port 3000) and back (port 1999) to become healthy
+      # Wait for front (port 4321) and back (port 1999) to become healthy
       - name: Wait for frontend to be ready
         run: |
           for i in $(seq 1 60); do
-            if curl -sSf http://localhost:3000/ > /dev/null 2>&1; then
+            if curl -sSf http://localhost:4321/ > /dev/null 2>&1; then
               echo "Frontend is up after ${i} attempts"
               break
             fi
             echo "Waiting for frontend... attempt $i/60"
             sleep 3
           done
-          curl -sSf http://localhost:3000/ || (echo "Frontend never became ready" && exit 1)
+          curl -sSf http://localhost:4321/ || (echo "Frontend never became ready" && exit 1)
 
       - name: Wait for PartyKit backend to be ready
         run: |

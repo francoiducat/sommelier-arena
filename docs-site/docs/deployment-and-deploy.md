@@ -16,12 +16,12 @@ This is the canonical deployment reference for Sommelier Arena. It covers all se
 
 ```mermaid
 flowchart LR
-  Browser -->|HTTPS| Pages[Cloudflare Pages<br/>(Frontend)]
-  Browser -->|WSS| PartyKit[PartyKit (Cloudflare Workers Durable Objects)]
+  Browser -->|HTTPS| Pages[Cloudflare Pages - Frontend]
+  Browser -->|WSS| PartyKit[PartyKit - Cloudflare Workers DO]
   Pages --> Proxy[Proxy Worker]
-  Proxy --> Docs[Docs (Docusaurus Pages)]
-  PartyKit --> KV[Cloudflare KV (HOSTS_KV)]
-  PartyKit -->|Durable Object storage| SQLite[SQLite (Worker DO storage)]
+  Proxy --> Docs[Docs - Docusaurus on Pages]
+  PartyKit --> KV[Cloudflare KV - HOSTS_KV]
+  PartyKit --> SQLite[SQLite - Worker DO storage]
 ```
 
 ## Summary of services
@@ -120,14 +120,25 @@ curl -X POST "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/workers/rout
 - Store `CF_API_TOKEN`, `CF_ACCOUNT_ID`, `ZONE_ID` in GitHub Actions secrets and use them in CI steps.
 - `PUBLIC_PARTYKIT_HOST` is baked into the frontend at build time. Capture the PartyKit URL after deploy and pass it as an env var when running `npm run build` in CI.
 
-## Complete CI workflow example
+## CI/CD deployment workflow
 
-Save as `.github/workflows/deploy.yml` (manual trigger, adapt for push/main):
+The deployment sequence is the same regardless of your hosting provider:
+
+1. **Deploy backend** (PartyKit / Cloudflare Workers) and capture the published host URL.
+2. **Build and deploy docs** site.
+3. **Build frontend** with `PUBLIC_PARTYKIT_HOST` baked in, then deploy to your static host.
+4. **Deploy proxy worker** (if applicable) with the docs origin URL injected.
+
+The example below uses **Cloudflare** (Pages + Workers + Wrangler). Adapt the deploy commands for your provider — the build steps and environment variable injection are identical.
+
+> **Other providers:** Replace `npx wrangler pages publish` with `vercel --prod` (Vercel), `netlify deploy --prod` (Netlify), or your provider's CLI. The PartyKit deploy step (`npx partykit deploy`) is the same everywhere.
+
+Save as `.github/workflows/deploy.yml` (manual trigger — adapt for push-to-main):
 
 ```yaml
-name: Deploy to Cloudflare
+name: CI/CD Deployment
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # run manually; change to push: {branches: [main]} for auto-deploy
 
 jobs:
   deploy:
@@ -148,7 +159,7 @@ jobs:
         run: npm ci
 
       # 1. Deploy PartyKit backend and capture the published host
-      - name: Deploy PartyKit
+      - name: Deploy PartyKit backend
         run: |
           set -euo pipefail
           PARTYKIT_OUTPUT=$(npx partykit deploy 2>&1)
@@ -158,23 +169,25 @@ jobs:
           PARTYKIT_HOST=${PARTYKIT_URL#https://}
           echo "PARTYKIT_HOST=$PARTYKIT_HOST" >> $GITHUB_ENV
 
-      # 2. Build and publish docs
+      # 2. Build and deploy docs site
       - name: Build docs
         run: npm --prefix docs-site ci && npm --prefix docs-site run build
 
-      - name: Publish docs to Pages
-        run: npx wrangler pages publish ./docs-site/build --project-name sommelier-arena-docs
+      - name: Deploy docs to Cloudflare Pages
+        # Replace with: vercel --prod ./docs-site/build  OR  netlify deploy --prod --dir docs-site/build
+        run: npx wrangler pages deploy ./docs-site/build --project-name sommelier-arena-docs
 
-      # 3. Build frontend with baked-in PartyKit host
+      # 3. Build frontend with baked-in PartyKit host, then deploy
       - name: Build frontend
         run: |
           npm --prefix front ci
           PUBLIC_PARTYKIT_HOST=$PARTYKIT_HOST npm --prefix front run build
 
-      - name: Publish frontend to Pages
-        run: npx wrangler pages publish ./front/dist --project-name $CF_PAGES_PROJECT_NAME
+      - name: Deploy frontend to Cloudflare Pages
+        # Replace with: vercel --prod ./front/dist  OR  netlify deploy --prod --dir front/dist
+        run: npx wrangler pages deploy ./front/dist --project-name $CF_PAGES_PROJECT_NAME
 
-      # 4. Deploy proxy worker with DOCS_ORIGIN
+      # 4. Deploy proxy worker with docs origin injected (Cloudflare-specific)
       - name: Deploy proxy worker
         run: |
           npx wrangler deploy proxy-worker/index.ts \

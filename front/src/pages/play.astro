@@ -1,5 +1,6 @@
 ---
 import { ParticipantApp } from '../components/participant/ParticipantApp';
+import Footer from '../components/common/Footer.astro';
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -8,9 +9,10 @@ import { ParticipantApp } from '../components/participant/ParticipantApp';
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Play — Sommelier Arena</title>
   </head>
-  <body>
-    <main>
+  <body class="flex flex-col min-h-screen">
+    <main class="flex-1">
       <ParticipantApp client:only="react" />
     </main>
+    <Footer />
   </body>
 </html>

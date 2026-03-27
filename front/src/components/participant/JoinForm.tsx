@@ -42,7 +42,7 @@ export function JoinForm({ onJoin, error }: JoinFormProps) {
               onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 4))}
               placeholder="0000"
               aria-describedby={error ? 'join-error' : undefined}
-              className="w-full text-center text-4xl font-bold font-mono tracking-widest border-2 border-slate-300 rounded-2xl px-4 py-5 text-slate-800 placeholder-slate-300 focus:outline-none focus:border-violet-400 bg-white"
+              className="w-full text-center text-4xl font-bold font-mono tracking-widest border-2 border-slate-300 rounded-2xl px-4 py-5 text-slate-800 placeholder-slate-300 focus:outline-none focus:border-wine-400 bg-white"
             />
           </div>
 
@@ -53,7 +53,7 @@ export function JoinForm({ onJoin, error }: JoinFormProps) {
           <button
             type="submit"
             disabled={code.length !== 4}
-            className="w-full bg-violet-600 text-white rounded-xl py-4 font-semibold text-lg hover:bg-violet-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="w-full bg-wine-600 text-white rounded-xl py-4 font-semibold text-lg hover:bg-wine-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Join
           </button>

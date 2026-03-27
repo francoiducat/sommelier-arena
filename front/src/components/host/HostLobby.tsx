@@ -8,7 +8,7 @@ interface HostLobbyProps {
 
 const getPlayShareUrl = () => {
   if (import.meta.env.DEV) {
-    return 'localhost:3000/play';
+    return 'localhost:4321/play';
   }
 
   if (typeof window !== 'undefined') {
@@ -30,8 +30,8 @@ export function HostLobby({ code, participants, onStart }: HostLobbyProps) {
         <p className="text-sm text-slate-500 uppercase tracking-widest mb-2">
           Session Code
         </p>
-        <div className="inline-block bg-violet-50 border border-violet-200 rounded-2xl px-8 py-4">
-          <span className="text-5xl font-bold font-mono text-violet-700 tracking-widest">
+        <div className="inline-block bg-wine-50 border border-wine-200 rounded-2xl px-8 py-4">
+          <span className="text-5xl font-bold font-mono text-wine-700 tracking-widest">
             {code}
           </span>
         </div>
@@ -73,7 +73,7 @@ export function HostLobby({ code, participants, onStart }: HostLobbyProps) {
       <button
         onClick={onStart}
         disabled={participants.length === 0}
-        className="w-full bg-violet-600 text-white rounded-xl py-4 font-semibold text-lg hover:bg-violet-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        className="w-full bg-wine-600 text-white rounded-xl py-4 font-semibold text-lg hover:bg-wine-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
         Start Game
       </button>

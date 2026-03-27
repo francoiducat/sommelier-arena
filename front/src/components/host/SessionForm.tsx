@@ -154,7 +154,7 @@ export function SessionForm({ onSubmit, hostId }: SessionFormProps) {
       <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3">
         <label htmlFor="timer-slider" className="block text-sm font-semibold text-slate-700">
           Timer per question:{' '}
-          <span className="text-violet-600">{timerSeconds}s</span>
+          <span className="text-wine-600">{timerSeconds}s</span>
         </label>
         <input
           id="timer-slider"
@@ -168,7 +168,7 @@ export function SessionForm({ onSubmit, hostId }: SessionFormProps) {
           aria-valuemax={120}
           aria-valuenow={timerSeconds}
           aria-valuetext={`${timerSeconds} seconds`}
-          className="w-full accent-violet-600"
+          className="w-full accent-wine-600"
         />
         <div className="flex justify-between text-xs text-slate-400">
           <span>15s</span>
@@ -204,13 +204,13 @@ export function SessionForm({ onSubmit, hostId }: SessionFormProps) {
               value={wine.name}
               onChange={(e) => updateWineName(wi, e.target.value)}
               placeholder="e.g. Château Margaux 2015"
-              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-400"
+              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-wine-400"
             />
           </div>
 
           {CATEGORIES.map((cat) => (
             <div key={cat.key} className="space-y-2">
-              <p className="text-sm font-semibold text-violet-600 uppercase tracking-wide">
+              <p className="text-sm font-semibold text-wine-600 uppercase tracking-wide">
                 {cat.label}
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -245,7 +245,7 @@ export function SessionForm({ onSubmit, hostId }: SessionFormProps) {
                       value={d}
                       onChange={(e) => updateAnswer(wi, cat.key, di, e.target.value)}
                       placeholder={`Distractor ${di + 1}`}
-                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-400"
+                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-wine-400"
                     />
                   </div>
                 ))}
@@ -263,13 +263,13 @@ export function SessionForm({ onSubmit, hostId }: SessionFormProps) {
         <button
           type="button"
           onClick={addWine}
-          className="flex-1 border border-violet-300 text-violet-600 rounded-xl py-3 font-medium hover:bg-violet-50 transition-colors"
+          className="flex-1 border border-wine-300 text-wine-600 rounded-xl py-3 font-medium hover:bg-wine-50 transition-colors"
         >
           + Add Wine
         </button>
         <button
           type="submit"
-          className="flex-1 bg-violet-600 text-white rounded-xl py-3 font-semibold hover:bg-violet-700 transition-colors"
+          className="flex-1 bg-wine-600 text-white rounded-xl py-3 font-semibold hover:bg-wine-700 transition-colors"
         >
           Create Session
         </button>

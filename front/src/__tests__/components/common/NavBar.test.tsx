@@ -1,66 +1,40 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
 import React from 'react';
 import { NavBar } from '../../../components/common/NavBar';
 
-// NavBar uses useCurrentUrl() which reads window.location.href.
-// jsdom sets window.location.href to 'http://localhost:3000/'.
-
 describe('NavBar', () => {
-  it('renders all navigation links', () => {
+  it('renders the logo link with aria-label', () => {
     render(<NavBar />);
-    // Logo link
-    expect(screen.getByRole('link', { name: /sommelier arena/i })).toBeInTheDocument();
-    // Nav links — use getAllByRole for Home since logo also links to /
-    const homeLinks = screen.getAllByRole('link', { name: /home/i });
-    expect(homeLinks.length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByRole('link', { name: /^host$/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /^play$/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /^docs$/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /sommelier arena — home/i })).toBeInTheDocument();
   });
 
-  it('renders the logo as a home link', () => {
+  it('renders Host a Game nav link pointing to /host', () => {
     render(<NavBar />);
-    expect(screen.getByRole('link', { name: /sommelier arena/i })).toBeInTheDocument();
+    const link = screen.getByRole('link', { name: /host a game/i });
+    expect(link).toBeInTheDocument();
+    expect(link).toHaveAttribute('href', '/host');
   });
 
-  it('always renders the URL span (no hidden class)', () => {
+  it("renders Let's Play nav link pointing to /play", () => {
     render(<NavBar />);
-    const spans = screen.getAllByTitle(/http/);
-    expect(spans.length).toBeGreaterThan(0);
-    // Ensure none have 'hidden' in their className (mobile visibility fix)
-    spans.forEach((span) => {
-      expect(span.className).not.toContain('hidden');
-    });
+    const link = screen.getByRole('link', { name: /let's play/i });
+    expect(link).toBeInTheDocument();
+    expect(link).toHaveAttribute('href', '/play');
   });
 
-  it('renders the current URL from window.location.href', () => {
+  it('renders Read the Docs link', () => {
     render(<NavBar />);
-    // jsdom default is 'http://localhost:3000/' or similar
-    const span = screen.getByTitle(/localhost/);
-    expect(span).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /read the docs/i })).toBeInTheDocument();
   });
 
-  it('renders a copy button', () => {
+  it('renders Git Repository link', () => {
     render(<NavBar />);
-    expect(screen.getByRole('button', { name: /copy current url/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /git repository/i })).toBeInTheDocument();
   });
 
-  it('copy button calls navigator.clipboard.writeText', async () => {
-    const writeText = vi.fn().mockResolvedValue(undefined);
-    Object.assign(navigator, { clipboard: { writeText } });
-
+  it('has a nav element with accessible label', () => {
     render(<NavBar />);
-    fireEvent.click(screen.getByRole('button', { name: /copy current url/i }));
-    expect(writeText).toHaveBeenCalled();
-  });
-
-  it('copy button shows ✓ feedback after click', async () => {
-    const writeText = vi.fn().mockResolvedValue(undefined);
-    Object.assign(navigator, { clipboard: { writeText } });
-
-    render(<NavBar />);
-    fireEvent.click(screen.getByRole('button', { name: /copy current url/i }));
-    await screen.findByText('✓');
+    expect(screen.getByRole('navigation', { name: /main navigation/i })).toBeInTheDocument();
   });
 });

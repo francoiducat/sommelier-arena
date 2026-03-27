@@ -27,10 +27,7 @@ const sidebars: SidebarsConfig = {
         'host-identity',
         'networking',
         'proxy-worker',
-        'env',
-        'local-vs-prod',
-        'config-comparison',
-        'testing-and-preview',
+        'configuration',
       ],
     },
     {

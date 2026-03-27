@@ -6,7 +6,76 @@ sidebar_label: Features
 
 # Features (MVP)
 
-## Host: test creation
+## Host
+
+- Host creates a session and adds wines (rounds). Each wine has a name and exactly 5 questions — one per fixed category: **color**, **country**, **grape variety**, **vintage year**, **wine name**.
+- For each question the host fills in the correct answer and 3 distractor options (4 choices total).
+- No minimum wine count is enforced, but a session with zero wines cannot be started.
+- The session is assigned a randomly generated 4-digit numeric code (e.g. `4821`) at creation time. Collisions are resolved by regenerating until a unique code is found.
+
+## Participant
+
+- Participants join from any browser by navigating to the `/play` page and entering the 4-digit session code.
+- Each participant is assigned a **generated pseudonym** (random adjective–wine-noun pair, e.g. `TannicFalcon`). No custom names — generated pseudonyms only.
+- Pseudonyms are unique within a session; the app regenerates on collision.
+- The lobby rejects joins once **10 players** are connected or once the first round has started, whichever comes first.
+- During a question, participants see all 4 answer options simultaneously and tap to select. They can **change their answer any time** until the host clicks Reveal Answer — there is no first-tap lock.
+- After each answer reveal, participants see an immediate **score delta** (+100 or 0) on screen.
+- After each wine, participants see a **round leaderboard** ranking all players by cumulative score.
+- When the host ends the session, participants are shown the **final leaderboard**, which persists until they close the tab.
+- Participants who disconnect cannot rejoin — their pseudonym and score are retained in the leaderboard but they receive no further questions.
+
+## Host dashboard
+
+Controls available to the host during a session:
+
+| Control | Behaviour |
+|---|---|
+| **Start** | Opens the session; participants can join via code. Lobby is closed once host starts the first round. |
+| **Pause** | Freezes the question timer and prevents participants from submitting answers. |
+| **Resume** | Unfreezes the timer from exactly where it was paused (remaining seconds are preserved). |
+| **Reveal Answer** | Closes answering for the current question (if timer has not yet expired), highlights the correct option for all participants, and shows per-question score deltas. Host must trigger this manually — it does not fire automatically. |
+| **Next** | Advances to the next question in the current round, or — after the final question's answer is revealed — shows the round leaderboard and then moves to the next wine. Disabled until the current question's answer has been revealed. |
+| **End** | Terminates the session immediately from any state. All participants are pushed to the final leaderboard screen. |
+
+The host sees a live list of which participants have answered (without revealing their choices) so they know when everyone is done.
+
+## Real-time play (per question)
+
+1. Host hits **Next** (or **Start** for the first question) → question + 4 answer options are broadcast to all participants simultaneously.
+2. Answer options are displayed in the same fixed order for every participant (no per-player shuffling).
+3. Participants tap an option to select it. They can **change their answer any time** until the host clicks **Reveal Answer** — there is no first-tap lock.
+4. A configurable timer (15–120 s, default 60 s) counts down. When it reaches 0, answering closes automatically (equivalent to the host triggering Reveal Answer, but the host can also trigger it earlier).
+5. Host hits **Reveal Answer** → correct option is highlighted for everyone; participants who answered correctly see +100 pts.
+6. Host hits **Next** → moves to the next question, or to the round leaderboard if all 5 questions are done.
+
+## Timer
+
+- Configurable per session: 15–120 seconds (slider at session creation; default 60 s).
+- **Pause** freezes the countdown; **Resume** continues from exactly where it was paused.
+- Participants who have not answered when the timer expires receive 0 points for that question. No penalty beyond 0.
+- Timer expiry fires an alarm on the server (`room.setAlarm`) — the reveal happens server-side even if the host's browser is closed.
+- Late submissions (in-flight at the exact moment the timer fires) are accepted if they arrive before the server processes the alarm.
+
+## Scoring & leaderboard
+
+- 100 points for a correct answer, 0 for wrong or unanswered — host cannot modify these values.
+- A **per-question score delta** is shown to participants immediately after answer reveal.
+- A **round leaderboard** (all participants ranked by cumulative score) is shown after all 5 questions of a wine are completed, before the next round begins. The host advances past it with **Next**.
+- A **final leaderboard** is shown to all participants when the host hits **End**. It persists on-screen until the participant closes the tab.
+
+## Connection & session lifecycle
+
+- Participants who disconnect cannot rejoin — their pseudonym and score are retained in the leaderboard but they receive no further questions.
+- If the host closes the browser tab, the session ends immediately and cannot be resumed. Participants are shown a "session ended" message.
+- No accounts, no login — minimal friction for quick local games.
+
+## Persistence
+
+- **Production**: game state is stored in Durable Object storage (SQLite-backed). Sessions survive DO eviction — the host can close the browser and resume later.
+- **Local dev** (`npx partykit dev`): storage is in-memory only. Restarting the dev server clears all sessions.
+- No session export or import.
+
 
 - Host creates a session and adds wines (rounds). Each wine has a name and exactly 5 questions — one per fixed category: **color**, **country**, **grape variety**, **vintage year**, **wine name**.
 - For each question the host fills in the correct answer and 3 distractor options (4 choices total).

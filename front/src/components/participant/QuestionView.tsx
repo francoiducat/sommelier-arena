@@ -59,8 +59,8 @@ export function QuestionView({
                 aria-pressed={isSelected}
                 className={`w-full text-left rounded-xl border px-4 py-4 font-medium text-sm transition-colors min-h-[72px] ${
                   isSelected
-                    ? 'border-violet-400 bg-violet-100 text-violet-800 ring-2 ring-violet-400'
-                    : 'border-slate-200 bg-white text-slate-700 hover:border-violet-300 hover:bg-violet-50'
+                    ? 'border-wine-400 bg-wine-100 text-wine-800 ring-2 ring-wine-400'
+                    : 'border-slate-200 bg-white text-slate-700 hover:border-wine-300 hover:bg-wine-50'
                 }`}
               >
                 <span className="font-bold text-slate-400 mr-2">

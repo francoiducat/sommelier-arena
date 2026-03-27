@@ -107,6 +107,11 @@ const config: Config = {
           position: 'left',
         },
         {
+          href: 'https://sommelier-arena.ducatillon.net/',
+          label: '🍷 Play the Game',
+          position: 'right',
+        },
+        {
           type: 'docsVersionDropdown',
           position: 'right',
         },

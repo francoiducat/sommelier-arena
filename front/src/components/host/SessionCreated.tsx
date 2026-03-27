@@ -41,14 +41,14 @@ export function SessionCreated({ code, hostId }: SessionCreatedProps) {
           Share this code with participants:
         </p>
         <p
-          className="text-6xl font-mono font-bold text-violet-600 tracking-widest mt-2"
+          className="text-6xl font-mono font-bold text-wine-600 tracking-widest mt-2"
           aria-label={`Session code: ${code.split('').join(' ')}`}
         >
           {code}
         </p>
         <p className="text-xs text-slate-500 mt-2">
           Participants join at{' '}
-          <span className="font-mono text-violet-600">{participantUrl}</span>
+          <span className="font-mono text-wine-600">{participantUrl}</span>
         </p>
       </div>
 
@@ -60,7 +60,7 @@ export function SessionCreated({ code, hostId }: SessionCreatedProps) {
           {shareUrl}
         </p>
         <p className="text-xs text-slate-500">
-          Host ID: <span className="font-mono font-bold text-violet-600">{hostId}</span>
+          Host ID: <span className="font-mono font-bold text-wine-600">{hostId}</span>
         </p>
 
         <div className="flex flex-col sm:flex-row gap-2 pt-1">

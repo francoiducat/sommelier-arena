@@ -1,5 +1,6 @@
 ---
 import { HostApp } from '../components/host/HostApp';
+import Footer from '../components/common/Footer.astro';
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -8,9 +9,10 @@ import { HostApp } from '../components/host/HostApp';
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Host — Sommelier Arena</title>
   </head>
-  <body>
-    <main>
+  <body class="flex flex-col min-h-screen">
+    <main class="flex-1">
       <HostApp client:only="react" />
     </main>
+    <Footer />
   </body>
 </html>

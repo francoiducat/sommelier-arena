@@ -16,7 +16,7 @@ export function Leaderboard({ rankings, highlightPseudonym }: LeaderboardProps) 
             key={entry.pseudonym}
             className={`flex items-center justify-between px-4 py-3 rounded-xl border ${
               isHighlighted
-                ? 'bg-violet-50 border-violet-300 font-semibold'
+                ? 'bg-wine-50 border-wine-300 font-semibold'
                 : 'bg-white border-slate-200'
             }`}
           >
@@ -36,7 +36,7 @@ export function Leaderboard({ rankings, highlightPseudonym }: LeaderboardProps) 
               </span>
               <span className="text-slate-800">{entry.pseudonym}</span>
             </div>
-            <span className="text-violet-600 font-bold">{entry.score} pts</span>
+            <span className="text-wine-600 font-bold">{entry.score} pts</span>
           </li>
         );
       })}

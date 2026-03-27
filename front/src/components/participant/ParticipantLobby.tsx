@@ -13,8 +13,8 @@ export function ParticipantLobby({ pseudonym }: ParticipantLobbyProps) {
           <p className="text-sm text-slate-500 uppercase tracking-widest mb-2">
             You are
           </p>
-          <div className="inline-block bg-violet-50 border border-violet-200 rounded-2xl px-6 py-3">
-            <span className="text-2xl font-bold text-violet-700">{pseudonym}</span>
+          <div className="inline-block bg-wine-50 border border-wine-200 rounded-2xl px-6 py-3">
+            <span className="text-2xl font-bold text-wine-700">{pseudonym}</span>
           </div>
         </div>
         <div className="flex items-center justify-center gap-2 text-slate-400">
