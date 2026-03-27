@@ -1,0 +1,55 @@
+{
+  "cli_version": "0.5.1",
+  "checkpoint_id": "ac9681ead94f",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 9,
+  "files_touched": [
+    ".github/workflows/deploy-example.yml",
+    ".github/workflows/docs-ci.yml",
+    ".gitignore",
+    "back/.env.example",
+    "docs-site/docs/cleanup-log.md",
+    "docs-site/docs/cloudflare-setup.md",
+    "docs-site/docs/cloudflare-wrangler.md",
+    "docs-site/docs/config-comparison.md",
+    "docs-site/docs/deployment-and-deploy.md",
+    "docs-site/docs/deployment.md",
+    "docs-site/docs/docs-index.json",
+    "docs-site/docs/env.md",
+    "docs-site/docs/for-automation.md",
+    "docs-site/docs/for-developers.md",
+    "docs-site/docs/for-partners.md",
+    "docs-site/docs/for-product.md",
+    "docs-site/docs/get-started.md",
+    "docs-site/docs/intro.md",
+    "docs-site/docs/local-vs-prod.md",
+    "docs-site/docs/quick-start.md",
+    "docs-site/docs/testing-and-preview.md",
+    "docs-site/docs/validation-report.md",
+    "docs-site/scripts/generate-index.sh",
+    "docs-site/serve-docs-express.js",
+    "docs-site/sidebars.ts",
+    "front/.env.local.example",
+    "front/nginx.conf",
+    "front/src/components/common/NavBar.tsx",
+    "front/src/env.d.ts",
+    "front/src/lib/socket.ts",
+    "partykit.json"
+  ],
+  "sessions": [
+    {
+      "metadata": "/ac/9681ead94f/0/metadata.json",
+      "transcript": "/ac/9681ead94f/0/full.jsonl",
+      "content_hash": "/ac/9681ead94f/0/content_hash.txt",
+      "prompt": "/ac/9681ead94f/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 40287,
+    "api_call_count": 102
+  }
+}

@@ -1,0 +1,112 @@
+How to upgrade astrojs ? SommelierArena git:(main) ✗ cd front 
+➜  front git:(main) ✗ npm run dev
+
+> sommelier-arena-front@1.0.0 dev
+> astro dev
+
+15:03:44 [types] Updated src/env.d.ts type declarations.
+15:03:44 [types] Generated 3ms
+
+ astro  v4.16.19 ready in 420 ms
+
+┃ Local    http://localhost:4321/
+┃ Network  use --host to expose
+
+15:03:44 watching for file changes...
+
+ update  ▶ New version of Astro available: 6.1.1
+  Run npx @astrojs/upgrade to update
+
+15:04:02 [200] /host 5ms
+15:04:04 [200] / 3ms
+15:04:06 [200] /host 3ms
+^C
+➜  front git:(main) ✗ npx @astrojs/upgrade 
+Need to install the following packages:
+@astrojs/upgrade@0.7.1
+Ok to proceed? (y) y
+
+ astro  Integration upgrade aborted.
+
+      ▲  error Version latest could not be found!
+      ◼  check https://github.com/withastro/astro/releases 
+➜  front git:(main) ✗ npx @astrojs/upgrade
+
+---
+
+[[PLAN]] I want to create an implementation plan. Please:
+1. Analyze the codebase to understand the current state
+2. Ask clarifying questions if my request is ambiguous
+3. Create a structured plan and save it to the plan file in the session folder
+
+My request: All the documentation files of the app are here: /Users/mac-FDUCAT18/Workspace/FDUCAT/SommelierArena/docs-site/docs HOwever I built it as I developed the project and the documentation is often duplicated, outdated our wrong. I want you to optimze the docs both for me as a developer, for end users, for contributors and for AI agent if possible. Could you do that using /Users/mac-FDUCAT18/Workspace/FDUCAT/SommelierArena/.github/skills/documentation-writer/SKILL.md and or /Users/mac-FDUCAT18/Workspace/FDUCAT/SommelierArena/.github/skills/prd/SKILL.md (for the PRD I like to procedd with a prd file containing links instead of a huge unique prd file) and or /Users/mac-FDUCAT18/Workspace/FDUCAT/SommelierArena/.github/skills/technology-stack-blueprint-generator/SKILL.md . Eventually once the existing doc is cleaned up you can also write a readme /Users/mac-FDUCAT18/Workspace/FDUCAT/SommelierArena/.github/skills/readme-blueprint-generator/SKILL.md . I insist on the fact that for me it is important to have in one view like a md table the comparison of configuration between local and prod for all layers (back, front, docusaurus, proxy etc.) . For the cloudflare configuration prefer the usage of wrangler or terminal command instead of the cloudflare UI when possible.
+
+---
+
+Start the discovery-audit and proceed to plan
+
+---
+
+You have not yet marked the task as complete using the task_complete tool. If you were planning, stop planning and start implementing. You aren't done until you have fully completed the task.
+
+IMPORTANT: Do NOT call task_complete if:
+- You have open questions or ambiguities - make good decisions and keep working
+- You encountered an error - try to resolve it or find an alternative approach
+- There are remaining steps - complete them first
+
+Keep working autonomously until the task is truly finished, then call task_complete.
+
+---
+
+You have not yet marked the task as complete using the task_complete tool. If you were planning, stop planning and start implementing. You aren't done until you have fully completed the task.
+
+IMPORTANT: Do NOT call task_complete if:
+- You have open questions or ambiguities - make good decisions and keep working
+- You encountered an error - try to resolve it or find an alternative approach
+- There are remaining steps - complete them first
+
+Keep working autonomously until the task is truly finished, then call task_complete.
+
+---
+
+You have not yet marked the task as complete using the task_complete tool. If you were planning, stop planning and start implementing. You aren't done until you have fully completed the task.
+
+IMPORTANT: Do NOT call task_complete if:
+- You have open questions or ambiguities - make good decisions and keep working
+- You encountered an error - try to resolve it or find an alternative approach
+- There are remaining steps - complete them first
+
+Keep working autonomously until the task is truly finished, then call task_complete.
+
+---
+
+You have not yet marked the task as complete using the task_complete tool. If you were planning, stop planning and start implementing. You aren't done until you have fully completed the task.
+
+IMPORTANT: Do NOT call task_complete if:
+- You have open questions or ambiguities - make good decisions and keep working
+- You encountered an error - try to resolve it or find an alternative approach
+- There are remaining steps - complete them first
+
+Keep working autonomously until the task is truly finished, then call task_complete.
+
+---
+
+You have not yet marked the task as complete using the task_complete tool. If you were planning, stop planning and start implementing. You aren't done until you have fully completed the task.
+
+IMPORTANT: Do NOT call task_complete if:
+- You have open questions or ambiguities - make good decisions and keep working
+- You encountered an error - try to resolve it or find an alternative approach
+- There are remaining steps - complete them first
+
+Keep working autonomously until the task is truly finished, then call task_complete.
+
+---
+
+You have not yet marked the task as complete using the task_complete tool. If you were planning, stop planning and start implementing. You aren't done until you have fully completed the task.
+
+IMPORTANT: Do NOT call task_complete if:
+- You have open questions or ambiguities - make good decisions and keep working
+- You encountered an error - try to resolve it or find an alternative approach
+- There are remaining steps - complete them first
+
+Keep working autonomously until the task is truly finished, then call task_complete.
