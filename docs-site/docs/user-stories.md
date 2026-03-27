@@ -21,7 +21,7 @@ title: "User Stories"
 
 - I want to join a session by entering a 4-digit code so I can participate without creating an account.
 - I want to be assigned a generated pseudonym automatically so I don't have to think of a name.
-- I want to answer multiple-choice questions within a 60-second window, knowing my first tap is final.
+- I want to answer multiple-choice questions within a configurable timer window (15–120 s, default 60 s), and be able to change my answer any time until the host reveals it.
 - I want to see the correct answer highlighted after the host reveals it, along with my points for that question.
 - I want to see the leaderboard after all questions of each wine are completed, so I can track my standing throughout the game.
 - I want to see a final leaderboard when the host ends the session, which stays on screen until I close the tab.

@@ -15,20 +15,23 @@ A **host** creates a game session with one or more wines. Each wine gets five qu
 
 Everything runs on **Cloudflare**: the frontend is a static Astro site on Cloudflare Pages; the game backend is a PartyKit Durable Object (Cloudflare Workers); session lists are stored in Cloudflare KV.
 
-## Quick links
+## Core concepts
 
-| Doc | What it covers |
-|-----|----------------|
-| [Quick Start](quick-start) | Run locally in under 2 minutes |
-| [Architecture](architecture) | Repo layout, runtime communication, DO lifecycle |
-| [Tech Stack](tech-stack) | Stack choices and design principles |
-| [Gameplay Workflow](gameplay-workflow) | Phase machine, event flow, answer/scoring rules |
-| [Event Reference](event-reference) | All WebSocket message types (client ↔ server) |
-| [Host Identity](host-identity) | `TANNIC-FALCON`-style IDs, session dashboard, rejoin |
-| [Data Persistence](data-persistence) | DO storage keys, KV schema, what survives a restart |
-| [Deployment & Deploy](deployment-and-deploy) | Cloudflare Pages + PartyKit deploy guide |
-| [Cloudflare Setup](deployment-and-deploy) | Step-by-step Cloudflare dashboard walkthrough |
-| [Contributing & Env](env) | Dev workflow, branch strategy, PR checklist, and environment setup |
+- **Session** — a single game instance, identified by a randomly generated 4-digit numeric code (e.g. `4821`).
+- **Round** — one wine. Each round has exactly 5 questions played back-to-back. The leaderboard is shown after all 5 questions, before the next wine begins.
+- **Question** — one of the 5 fixed-category questions for a wine: `color`, `country`, `grape_variety`, `vintage_year`, `wine_name`. The host pre-fills the correct answer and 3 distractors.
+
+## Key rules
+
+| Rule | Value |
+|------|-------|
+| Max players | 10 (lobby rejects extra joins) |
+| Questions per wine | 5 (fixed categories) |
+| Timer per question | Configurable 15–120 s (default 60 s) |
+| Scoring | 100 pts correct · 0 pts wrong/unanswered |
+| Answer changing | Allowed until host reveals — no first-tap lock |
+| Mid-session joins | Not allowed once first round starts |
+| Persistence | DO storage (SQLite) in production; in-memory in local dev |
 
 ## What's new in v2.0 (PartyKit)
 
@@ -41,5 +44,26 @@ Everything runs on **Cloudflare**: the frontend is a static Astro site on Cloudf
 - **No-lock answers** — participants can change their answer until the host reveals
 - **2 × 2 option grid** — cleaner layout on mobile
 
-- [Quick Start](quick-start) — local dev setup
+## Who are you?
 
+| I am… | Start here |
+|-------|-----------|
+| A **developer** setting up locally | [Quick Start](quick-start) |
+| A **developer** understanding the system | [Architecture](architecture) · [Tech Stack](tech-stack) |
+| A **product person / user** | [Features](features) · [Gameplay Workflow](gameplay-workflow) |
+| **Deploying** to Cloudflare | [Deployment Guide](deployment-and-deploy) |
+| An **automation agent / AI** | [For Automation](for-automation) |
+
+## Quick reference
+
+| Doc | What it covers |
+|-----|----------------|
+| [Quick Start](quick-start) | Run locally in under 2 minutes |
+| [Architecture](architecture) | Repo layout, runtime communication, DO lifecycle |
+| [Tech Stack](tech-stack) | Stack choices and design principles |
+| [Gameplay Workflow](gameplay-workflow) | Phase machine, event flow, answer/scoring rules |
+| [Event Reference](event-reference) | All WebSocket message types (client ↔ server) |
+| [Host Identity](host-identity) | `TANNIC-FALCON`-style IDs, session dashboard, rejoin |
+| [Data Persistence](data-persistence) | DO storage keys, KV schema, what survives a restart |
+| [Deployment Guide](deployment-and-deploy) | Cloudflare Pages + PartyKit + Wrangler deploy |
+| [Env Variables](env) | Environment variable reference for all services |

@@ -1,6 +1,7 @@
 ---
 id: features
-title: "Features (MVP)"
+title: Features
+sidebar_label: Features
 ---
 
 # Features (MVP)
@@ -38,17 +39,18 @@ The host sees a live list of which participants have answered (without revealing
 
 1. Host hits **Next** (or **Start** for the first question) → question + 4 answer options are broadcast to all participants simultaneously.
 2. Answer options are displayed in the same fixed order for every participant (no per-player shuffling).
-3. Participants tap an option → **first tap locks the answer**, no changes allowed.
-4. The 60-second timer counts down. When it reaches 0, answering closes automatically (equivalent to the host triggering Reveal Answer, but the host can also trigger it earlier).
+3. Participants tap an option to select it. They can **change their answer any time** until the host clicks **Reveal Answer** — there is no first-tap lock.
+4. A configurable timer (15–120 s, default 60 s) counts down. When it reaches 0, answering closes automatically (equivalent to the host triggering Reveal Answer, but the host can also trigger it earlier).
 5. Host hits **Reveal Answer** → correct option is highlighted for everyone; participants who answered correctly see +100 pts.
 6. Host hits **Next** → moves to the next question, or to the round leaderboard if all 5 questions are done.
 
 ## Timer
 
-- Fixed at 60 seconds per question.
-- **Pause** freezes the countdown; **Resume** continues from the frozen value.
+- Configurable per session: 15–120 seconds (slider at session creation; default 60 s).
+- **Pause** freezes the countdown; **Resume** continues from exactly where it was paused.
 - Participants who have not answered when the timer expires receive 0 points for that question. No penalty beyond 0.
-- Late submissions (in-flight at the exact moment the timer hits 0) are accepted if they arrive at the server before the server-side close event is processed.
+- Timer expiry fires an alarm on the server (`room.setAlarm`) — the reveal happens server-side even if the host's browser is closed.
+- Late submissions (in-flight at the exact moment the timer fires) are accepted if they arrive before the server processes the alarm.
 
 ## Scoring & leaderboard
 
@@ -65,5 +67,6 @@ The host sees a live list of which participants have answered (without revealing
 
 ## Persistence
 
-- Ephemeral only: Zustand/localStorage client-side state. No server-side persistence.
-- No session export or import for MVP.
+- **Production**: game state is stored in Durable Object storage (SQLite-backed). Sessions survive DO eviction — the host can close the browser and resume later.
+- **Local dev** (`npx partykit dev`): storage is in-memory only. Restarting the dev server clears all sessions.
+- No session export or import.

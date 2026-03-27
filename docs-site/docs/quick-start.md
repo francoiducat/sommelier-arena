@@ -2,14 +2,7 @@
 id: quick-start
 title: Quick Start
 sidebar_label: Quick Start
-deprecated: true
-redirect_to: deployment-and-deploy
 ---
-
-> NOTE: Deployment and Pages instructions formerly here have moved to [Deployment & Deploy](./deployment-and-deploy). Quick Start still contains local development modes; see the canonical deployment doc for production.
-
-<!-- Partial page preserved; refer to canonical docs for deploy steps. -->
-
 
 # Quick Start
 
@@ -35,7 +28,7 @@ npx partykit dev
 
 # Terminal 2 — Astro frontend (port 4321)
 cd front
-cp .env.local.example .env.local   # PUBLIC_PARTYKIT_HOST=localhost:1999
+cp .env.example .env.local   # PUBLIC_PARTYKIT_HOST=localhost:1999
 npm run dev
 ```
 
@@ -141,6 +134,6 @@ cd e2e && npm test -- --project=chromium
 | `PUBLIC_PARTYKIT_HOST` | `front/.env.local` | `localhost:1999` (local) |
 | `PUBLIC_PARTYKIT_HOST` | Cloudflare Pages dashboard | `sommelier-arena.USERNAME.partykit.dev` (prod) |
 
-See `front/.env.local.example` for a template.
+See `front/.env.example` for a template.
 
 > **Note:** Sessions persist in your browser's localStorage. Use the 🗑 button on the Host Dashboard to clean up old sessions.

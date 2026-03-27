@@ -18,13 +18,12 @@ Principles and precedence
 Per-service notes
 
 - Frontend (front/)
-  - Template: `front/.env.local.example` → copy to `front/.env.local` for local dev.
+  - Template: `front/.env.example` → copy to `front/.env.local` for local dev.
   - Key var: PUBLIC_PARTYKIT_HOST (Mode A: localhost:1999; Mode B/Docker: localhost:4321 baked at build time)
   - In Docker mode the build injects the correct host; do not rely on local `.env.local` for Docker builds.
 
 - Backend (back/)
-  - Template: `back/.env.example` documents backend-only envs.
-  - Durable Object bindings (KV, etc.) are configured in `wrangler.toml` and secrets are created via `wrangler secret put` or set in CI. Do not rely on `.env` for production DO bindings.
+  - The backend is a PartyKit Durable Object (`back/game.ts`). It has no `.env` file — Durable Object bindings (KV, etc.) are configured in `partykit.json` and secrets are created via `wrangler secret put` or set in CI.
 
 - Docs (docs-site/)
   - Template: `docs-site/.env.example` → copy to `docs-site/.env` to mirror production (`DOCS_BASE_URL=/docs`) or set to `/` for root serving.
@@ -34,8 +33,7 @@ How to use locally
 
 1. Copy the appropriate example into a `.env` (or `.env.local` for the front) in the service folder:
 
-   cd front && cp .env.local.example .env.local
-   cd back  && cp .env.example .env
+   cd front && cp .env.example .env.local
    cd docs-site && cp .env.example .env
 
 2. Install dependencies and run the service (example for docs-site):
@@ -58,8 +56,7 @@ Troubleshooting
 
 Where to find examples
 
-- front/.env.local.example
-- back/.env.example
+- front/.env.example
 - docs-site/.env.example
 
 Change log

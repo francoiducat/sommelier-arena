@@ -26,7 +26,7 @@ npx partykit dev --port 1999        # PartyKit listens on 1999
 cd front && npm run dev             # Astro dev server on 4321
 ```
 
-`front/.env.local` (or `.env.local.example`) sets:
+`front/.env.local` (copied from `front/.env.example`) sets:
 
 ```
 PUBLIC_PARTYKIT_HOST=localhost:1999

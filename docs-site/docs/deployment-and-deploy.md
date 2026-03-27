@@ -1,16 +1,16 @@
 ---
 id: deployment-and-deploy
-title: Deployment & Deploy
-sidebar_label: Deployment
+title: Deployment Guide
+sidebar_label: Deployment Guide
 audience: developer
-tags: [deployment, cloudflare, partykit, pages, wrangler]
+tags: [deployment, cloudflare, partykit, pages, wrangler, ci]
 ---
 
-# Deployment & Deploy
+# Deployment Guide
 
-This canonical document consolidates deployment and Cloudflare setup steps for Sommelier Arena. It replaces `deployment.md`, `cloudflare-setup.md`, and the deployment sections of `quick-start.md`.
+This is the canonical deployment reference for Sommelier Arena. It covers all services, CLI-first deployment commands, and a full CI workflow example.
 
-Note: Use the Wrangler CLI for reproducible, scriptable Worker deployments and Cloudflare Pages API for automation. Manual Dashboard steps are referenced for one-off tasks only.
+> **Rule of thumb:** use Wrangler CLI and `npx partykit deploy` for all deployments; avoid the Cloudflare Dashboard except for one-off manual tasks.
 
 ## Architecture
 
@@ -118,5 +118,76 @@ curl -X POST "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/workers/rout
 
 - Do not hard-code `DOCS_ORIGIN`; inject via CI or Wrangler `--var`.
 - Store `CF_API_TOKEN`, `CF_ACCOUNT_ID`, `ZONE_ID` in GitHub Actions secrets and use them in CI steps.
+- `PUBLIC_PARTYKIT_HOST` is baked into the frontend at build time. Capture the PartyKit URL after deploy and pass it as an env var when running `npm run build` in CI.
+
+## Complete CI workflow example
+
+Save as `.github/workflows/deploy.yml` (manual trigger, adapt for push/main):
+
+```yaml
+name: Deploy to Cloudflare
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+      CF_PAGES_PROJECT_NAME: ${{ secrets.CF_PAGES_PROJECT_NAME }}
+      ZONE_ID: ${{ secrets.ZONE_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install root dependencies
+        run: npm ci
+
+      # 1. Deploy PartyKit backend and capture the published host
+      - name: Deploy PartyKit
+        run: |
+          set -euo pipefail
+          PARTYKIT_OUTPUT=$(npx partykit deploy 2>&1)
+          echo "$PARTYKIT_OUTPUT"
+          PARTYKIT_URL=$(echo "$PARTYKIT_OUTPUT" | grep -oE "https?://[a-zA-Z0-9.-]+\.partykit\.dev" || true)
+          if [ -z "$PARTYKIT_URL" ]; then echo "PartyKit deploy did not return a URL"; exit 1; fi
+          PARTYKIT_HOST=${PARTYKIT_URL#https://}
+          echo "PARTYKIT_HOST=$PARTYKIT_HOST" >> $GITHUB_ENV
+
+      # 2. Build and publish docs
+      - name: Build docs
+        run: npm --prefix docs-site ci && npm --prefix docs-site run build
+
+      - name: Publish docs to Pages
+        run: npx wrangler pages publish ./docs-site/build --project-name sommelier-arena-docs
+
+      # 3. Build frontend with baked-in PartyKit host
+      - name: Build frontend
+        run: |
+          npm --prefix front ci
+          PUBLIC_PARTYKIT_HOST=$PARTYKIT_HOST npm --prefix front run build
+
+      - name: Publish frontend to Pages
+        run: npx wrangler pages publish ./front/dist --project-name $CF_PAGES_PROJECT_NAME
+
+      # 4. Deploy proxy worker with DOCS_ORIGIN
+      - name: Deploy proxy worker
+        run: |
+          npx wrangler deploy proxy-worker/index.ts \
+            --account-id $CF_ACCOUNT_ID \
+            --var DOCS_ORIGIN=https://sommelier-arena-docs.pages.dev
+```
+
+**Required GitHub Secrets:**
+| Secret | Value |
+|--------|-------|
+| `CF_API_TOKEN` | Cloudflare API token (Workers:Edit, Pages:Edit, Zone:Edit) |
+| `CF_ACCOUNT_ID` | Your Cloudflare account ID |
+| `CF_PAGES_PROJECT_NAME` | Pages project name for the frontend (e.g. `sommelier-arena`) |
+| `ZONE_ID` | Zone ID for `ducatillon.net` (needed only for custom routes) |
 
 <!-- end canonical deployment doc -->
