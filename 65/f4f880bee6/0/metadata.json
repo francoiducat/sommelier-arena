@@ -1,0 +1,55 @@
+{
+  "cli_version": "0.5.1",
+  "checkpoint_id": "65f4f880bee6",
+  "session_id": "6315ef2d-abde-4bd5-9eed-c51d71f695c1",
+  "strategy": "manual-commit",
+  "created_at": "2026-03-27T17:56:32.954835Z",
+  "branch": "main",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "docs-site/docs/cloudflare-wrangler.md",
+    "docs-site/docs/deployment-and-deploy.md",
+    "docs-site/docs/env.md",
+    "docs-site/docs/user-stories.md",
+    "docs-site/docs/cloudflare-setup.md",
+    "docs-site/docs/get-started.md",
+    "docs-site/docs/intro.md",
+    "docs-site/docs/testing-and-preview.md",
+    "docs-site/docs/validation-report.md",
+    "docs-site/docs/cleanup-log.md",
+    "docs-site/docs/deployment.md",
+    "docs-site/docs/for-partners.md",
+    "docs-site/docs/for-product.md",
+    "docs-site/docs/prd.md",
+    "docs-site/docs/quick-start.md",
+    "docs-site/docs/features.md",
+    "docs-site/docs/networking.md",
+    "docs-site/docs/overview.md",
+    "docs-site/docs/prd-link-based.md",
+    "docs-site/sidebars.ts"
+  ],
+  "agent": "Copilot CLI",
+  "model": "gpt-5-mini",
+  "turn_id": "e1572713bd1b",
+  "checkpoint_transcript_start": 1092,
+  "transcript_lines_at_start": 1092,
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 28488,
+    "api_call_count": 65
+  },
+  "session_metrics": {
+    "turn_count": 9
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-03-27T17:56:32.03994Z",
+    "agent_lines": 194,
+    "human_added": 1,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 195,
+    "agent_percentage": 99.48717948717949
+  }
+}
