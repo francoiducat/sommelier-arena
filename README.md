@@ -1,6 +1,8 @@
-Sommelier Arena
+# Sommelier Arena
 
 Sommelier Arena is a real-time blind wine tasting quiz (Kahoot-style). Host creates sessions, participants join with a 4-digit code, and compete live.
+
+# Play
 
 <https://sommelier-arena.ducatillon.net>
 
