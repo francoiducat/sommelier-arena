@@ -38,7 +38,7 @@ export function FinalLeaderboard({ rankings, pseudonym }: FinalLeaderboardProps)
 
         <button
           onClick={handlePlayAgain}
-          className="w-full bg-gradient-to-br from-wine-700 to-wine-500 text-white rounded-xl py-3 font-semibold hover:from-wine-800 hover:to-wine-600 transition-colors"
+          className="w-full bg-gradient-to-b from-wine-800 to-wine-500 text-white rounded-xl py-3 font-semibold hover:from-wine-900 hover:to-wine-600 transition-colors"
         >
           Play Another Session
         </button>
