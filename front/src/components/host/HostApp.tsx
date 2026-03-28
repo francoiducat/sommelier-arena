@@ -14,7 +14,7 @@ import { HostRoundLeaderboard } from './HostRoundLeaderboard';
 import { HostFinalLeaderboard } from './HostFinalLeaderboard';
 import type { SessionListEntry } from '../../types/events';
 
-export function HostApp() {
+export function HostApp({ showNav = true }: { showNav?: boolean }) {
   const phase = useHostStore((s) => s.phase);
   const code = useHostStore((s) => s.code);
   const hostId = useHostStore((s) => s.hostId);
@@ -85,7 +85,7 @@ export function HostApp() {
   if (phase === 'dashboard') {
     return (
       <div className="bg-slate-50">
-        <NavBar />
+        {showNav && <NavBar />}
         <h1 className="sr-only" tabIndex={-1} ref={headingRef}>Host Dashboard</h1>
         <HostDashboard
           hostId={hostId}
@@ -112,7 +112,7 @@ export function HostApp() {
   if (phase === 'setup') {
     return (
       <div className="bg-slate-50">
-        <NavBar />
+        {showNav && <NavBar />}
         <div className="px-4 py-10">
           <h1 className="sr-only" tabIndex={-1} ref={headingRef}>New Session</h1>
           <SessionForm onSubmit={createSession} hostId={hostId} />
@@ -124,7 +124,7 @@ export function HostApp() {
   if (phase === 'lobby' && code) {
     return (
       <div className="bg-slate-50">
-        <NavBar />
+        {showNav && <NavBar />}
         <div className="px-4 py-10 space-y-6">
           <h1 className="sr-only" tabIndex={-1} ref={headingRef}>Session Lobby</h1>
           <SessionCreated code={code} hostId={hostId} />
@@ -141,7 +141,7 @@ export function HostApp() {
   if (phase === 'question' && currentQuestion) {
     return (
       <div className="bg-slate-50">
-        <NavBar />
+        {showNav && <NavBar />}
         <div className="px-4 py-10">
           <h1 className="sr-only" tabIndex={-1} ref={headingRef}>Question {currentQuestion.questionIndex + 1}</h1>
           <HostQuestion
@@ -163,7 +163,7 @@ export function HostApp() {
   if (phase === 'revealed' && currentQuestion && revealData) {
     return (
       <div className="bg-slate-50">
-        <NavBar />
+        {showNav && <NavBar />}
         <div className="px-4 py-10">
           <h1 className="sr-only" tabIndex={-1} ref={headingRef}>Answer Revealed</h1>
           <HostReveal
@@ -180,7 +180,7 @@ export function HostApp() {
   if (phase === 'roundLeaderboard') {
     return (
       <div className="bg-slate-50">
-        <NavBar />
+        {showNav && <NavBar />}
         <div className="px-4 py-10">
           <h1 className="sr-only" tabIndex={-1} ref={headingRef}>Round Leaderboard</h1>
           <HostRoundLeaderboard
@@ -198,7 +198,7 @@ export function HostApp() {
   if (phase === 'finalLeaderboard') {
     return (
       <div className="bg-slate-50">
-        <NavBar />
+        {showNav && <NavBar />}
         <div className="px-4 py-10">
           <h1 className="sr-only" tabIndex={-1} ref={headingRef}>Final Leaderboard</h1>
           <HostFinalLeaderboard rankings={rankings} />
@@ -210,8 +210,8 @@ export function HostApp() {
   // Fallback loading
   return (
     <div className="bg-slate-50">
-      <NavBar />
-      <div className="flex items-center justify-center min-h-[80vh]">
+      {showNav && <NavBar />}
+      <div className="flex items-center justify-center min-h-[60vh]">
         <p className="text-slate-400">Connecting…</p>
       </div>
     </div>

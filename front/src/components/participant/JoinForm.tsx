@@ -16,7 +16,7 @@ export function JoinForm({ onJoin, error }: JoinFormProps) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
+    <div className="min-h-[80vh] bg-slate-50 flex items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-8 text-center">
         <div>
           <p className="text-4xl mb-3">🍷</p>

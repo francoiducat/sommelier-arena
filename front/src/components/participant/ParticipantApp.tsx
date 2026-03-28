@@ -11,7 +11,7 @@ import { RoundLeaderboard } from './RoundLeaderboard';
 import { FinalLeaderboard } from './FinalLeaderboard';
 import { SessionEnded } from './SessionEnded';
 
-export function ParticipantApp() {
+export function ParticipantApp({ showNav = true }: { showNav?: boolean }) {
   const phase = useParticipantStore((s) => s.phase);
   const pseudonym = useParticipantStore((s) => s.pseudonym);
   const sessionCode = useParticipantStore((s) => s.sessionCode);
@@ -68,8 +68,8 @@ export function ParticipantApp() {
   if (isRejoining) {
     return (
       <div className="bg-slate-50">
-        <NavBar />
-        <div className="flex items-center justify-center min-h-[80vh]">
+        {showNav && <NavBar />}
+        <div className="flex items-center justify-center min-h-[60vh]">
           <p className="text-slate-400 animate-pulse">Rejoining session…</p>
         </div>
       </div>
@@ -79,7 +79,7 @@ export function ParticipantApp() {
   if (phase === 'join') {
     return (
       <div className="bg-slate-50">
-        <NavBar />
+        {showNav && <NavBar />}
         <JoinForm onJoin={handleJoin} error={joinError} />
       </div>
     );
@@ -88,7 +88,7 @@ export function ParticipantApp() {
   if (phase === 'lobby' && pseudonym) {
     return (
       <div className="bg-slate-50">
-        <NavBar />
+        {showNav && <NavBar />}
         <h1 className="sr-only" tabIndex={-1} ref={headingRef}>Waiting for host to start</h1>
         <ParticipantLobby pseudonym={pseudonym} />
       </div>
@@ -98,7 +98,7 @@ export function ParticipantApp() {
   if (phase === 'question' && currentQuestion) {
     return (
       <div className="bg-slate-50">
-        <NavBar />
+        {showNav && <NavBar />}
         <h1 className="sr-only" tabIndex={-1} ref={headingRef}>Question {currentQuestion.questionIndex + 1}</h1>
         <QuestionView
           question={currentQuestion}
@@ -113,7 +113,7 @@ export function ParticipantApp() {
   if (phase === 'revealed' && currentQuestion && revealData) {
     return (
       <div className="bg-slate-50">
-        <NavBar />
+        {showNav && <NavBar />}
         <h1 className="sr-only" tabIndex={-1} ref={headingRef}>Answer Revealed</h1>
         <RevealView
           question={currentQuestion}
@@ -127,7 +127,7 @@ export function ParticipantApp() {
   if (phase === 'roundLeaderboard') {
     return (
       <div className="bg-slate-50">
-        <NavBar />
+        {showNav && <NavBar />}
         <h1 className="sr-only" tabIndex={-1} ref={headingRef}>Round Leaderboard</h1>
         <RoundLeaderboard rankings={rankings} pseudonym={pseudonym} />
       </div>
@@ -137,7 +137,7 @@ export function ParticipantApp() {
   if (phase === 'finalLeaderboard') {
     return (
       <div className="bg-slate-50">
-        <NavBar />
+        {showNav && <NavBar />}
         <h1 className="sr-only" tabIndex={-1} ref={headingRef}>Final Leaderboard</h1>
         <FinalLeaderboard rankings={rankings} pseudonym={pseudonym} />
       </div>
@@ -147,7 +147,7 @@ export function ParticipantApp() {
   if (phase === 'ended') {
     return (
       <div className="bg-slate-50">
-        <NavBar />
+        {showNav && <NavBar />}
         <h1 className="sr-only" tabIndex={-1} ref={headingRef}>Session Ended</h1>
         <SessionEnded />
       </div>
@@ -156,8 +156,8 @@ export function ParticipantApp() {
 
   return (
     <div className="bg-slate-50">
-      <NavBar />
-      <div className="flex items-center justify-center min-h-[80vh]">
+      {showNav && <NavBar />}
+      <div className="flex items-center justify-center min-h-[60vh]">
         <p className="text-slate-400">Connecting…</p>
       </div>
     </div>

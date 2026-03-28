@@ -24,7 +24,7 @@ export function HostDashboard({
   const endedSessions = sessions.filter((s) => s.status === 'ended');
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-10">
+    <div className="min-h-[80vh] bg-slate-50 px-4 py-10">
       <div className="w-full max-w-2xl mx-auto space-y-8">
         {/* Host identity */}
         <div className="text-center">

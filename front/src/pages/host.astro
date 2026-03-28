@@ -1,5 +1,6 @@
 ---
 import { HostApp } from '../components/host/HostApp';
+import { NavBar } from '../components/common/NavBar';
 import Footer from '../components/common/Footer.astro';
 ---
 <!DOCTYPE html>
@@ -10,8 +11,9 @@ import Footer from '../components/common/Footer.astro';
     <title>Host — Sommelier Arena</title>
   </head>
   <body class="bg-slate-50 min-h-screen flex flex-col">
-    <main class="flex-1">
-      <HostApp client:only="react">
+    <NavBar client:only="react" />
+    <main class="flex-1 min-h-0 overflow-auto">
+      <HostApp client:only="react" showNav={false}>
         <div slot="fallback" class="flex items-center justify-center h-40 text-slate-400">
           Loading…
         </div>
