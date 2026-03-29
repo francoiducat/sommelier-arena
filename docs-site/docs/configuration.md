@@ -33,7 +33,7 @@ cd front && cp .env.example .env.local
 
 | Variable | Mode A (local) | Mode B (Docker) | Production |
 |---|---|---|---|
-| `PUBLIC_PARTYKIT_HOST` | `localhost:1999` (direct to `partykit dev`) | `localhost:4321` (baked at Docker build time; nginx proxies `/parties/*` to back:1999) | `sommelier-arena.<username>.partykit.dev` |
+| `PUBLIC_PARTYKIT_HOST` | `localhost:1999` (direct to `partykit dev`) | `localhost:1999` (baked at Docker build time; frontend build is configured to connect to PartyKit at host port 1999; nginx serves static files only) | `sommelier-arena.<username>.partykit.dev` |
 | `PUBLIC_DOCS_URL` | *(optional)* `http://localhost:3002/docs` | *(optional)* `http://localhost:3002/docs` | `https://your-domain/docs` |
 
 ## Certificates / Playwright trust
