@@ -1,0 +1,35 @@
+{
+  "cli_version": "0.5.1",
+  "checkpoint_id": "91162f246eda",
+  "strategy": "manual-commit",
+  "branch": "feat/ui-polish",
+  "checkpoints_count": 2,
+  "files_touched": [
+    ".github/issues/shared-url.md",
+    ".github/issues/waiting-player-not-displayed.md",
+    ".github/prompt/enhancement.prompt.md",
+    "front/src/__tests__/components/host/HostDashboard.test.tsx",
+    "front/src/components/common/NavBar.tsx",
+    "front/src/components/host/HostApp.tsx",
+    "front/src/components/host/HostDashboard.tsx",
+    "front/src/components/host/SessionCreated.tsx",
+    "front/src/components/host/SessionForm.tsx",
+    "front/src/components/participant/JoinForm.tsx",
+    "front/src/components/participant/ParticipantApp.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/91/162f246eda/0/metadata.json",
+      "transcript": "/91/162f246eda/0/full.jsonl",
+      "content_hash": "/91/162f246eda/0/content_hash.txt",
+      "prompt": "/91/162f246eda/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 459214,
+    "api_call_count": 862
+  }
+}
