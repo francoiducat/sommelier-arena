@@ -52,7 +52,7 @@ jobs:
         run: npm --prefix front ci
 
       - name: Build frontend
-        run: npm --prefix front build
+        run: npm --prefix front run build
         env:
           # Point the frontend bundle at the local PartyKit dev server
           PUBLIC_PARTYKIT_HOST: localhost:1999
