@@ -103,6 +103,30 @@ npm run start:local
 
 ### Docs site — local search & preview
 
+## Certificates / Playwright trust
+
+If your network performs TLS interception (corporate proxy like Zscaler), Playwright's browser downloads may fail with TLS errors. Convert your organization's root certificate to PEM and use it for the single Playwright install command.
+
+1. Convert DER (`.cer` / `.crt`) to PEM if needed:
+
+```bash
+openssl x509 -in "/path/to/org-root-ca.cer" -inform DER -out "/path/to/org-root-ca.pem" -outform PEM
+```
+
+2. Run the Playwright installer from the e2e directory while trusting the PEM file (one-off):
+
+```bash
+cd e2e
+NODE_EXTRA_CA_CERTS="/path/to/org-root-ca.pem" npx playwright install --with-deps
+```
+
+Notes:
+
+- Use a full filesystem path for `NODE_EXTRA_CA_CERTS` (do not check the PEM into source control).
+- If you are behind an HTTP proxy, prefix the command with `HTTPS_PROXY="http://proxy:port"`.
+- Avoid `NODE_TLS_REJECT_UNAUTHORIZED=0` in CI or shared environments — it disables TLS verification globally.
+
+
 This project uses a local, file-based search plugin for Docusaurus to provide a search box in the docs navbar.
 
 Quick start (dev):

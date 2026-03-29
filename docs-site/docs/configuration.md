@@ -36,6 +36,30 @@ cd front && cp .env.example .env.local
 | `PUBLIC_PARTYKIT_HOST` | `localhost:1999` (direct to `partykit dev`) | `localhost:4321` (baked at Docker build time; nginx proxies `/parties/*` to back:1999) | `sommelier-arena.<username>.partykit.dev` |
 | `PUBLIC_DOCS_URL` | *(optional)* `http://localhost:3002/docs` | *(optional)* `http://localhost:3002/docs` | `https://your-domain/docs` |
 
+## Certificates / Playwright trust
+
+If your network performs TLS interception (corporate proxy like Zscaler), Playwright's browser downloads may fail with TLS errors. To avoid this during the one-off Playwright browser install, provide your organization's root CA to Node via `NODE_EXTRA_CA_CERTS`.
+
+1. Convert your org certificate (DER `.cer` or `.crt`) to PEM if needed:
+
+```bash
+openssl x509 -in "/path/to/org-root-ca.cer" -inform DER -out "/path/to/org-root-ca.pem" -outform PEM
+```
+
+2. Run the Playwright installer while trusting the PEM file (one-off):
+
+```bash
+cd e2e
+NODE_EXTRA_CA_CERTS="/path/to/org-root-ca.pem" npx playwright install --with-deps
+```
+
+Notes:
+
+- Use a full filesystem path for `NODE_EXTRA_CA_CERTS` (do not check the PEM into source control).
+- If you are behind an HTTP proxy, prefix the command with `HTTPS_PROXY="http://proxy:port"`.
+- Avoid `NODE_TLS_REJECT_UNAUTHORIZED=0` in CI or shared environments — it disables TLS verification globally.
+
+
 > **Docker note:** In Mode B, `PUBLIC_PARTYKIT_HOST` is a Docker build arg baked into the Astro static build — do **not** rely on `.env.local` for Docker builds. Pass it via `docker-compose.yml` or `docker build --build-arg`.
 
 ### Backend (`back/`)
