@@ -1,0 +1,34 @@
+{
+  "cli_version": "0.5.1",
+  "checkpoint_id": "eefb70dc529d",
+  "strategy": "manual-commit",
+  "branch": "fix-bugs",
+  "checkpoints_count": 2,
+  "files_touched": [
+    ".github/issues/bugs/done/shared-url.md",
+    ".github/issues/bugs/done/waiting-player-not-displayed.md",
+    ".github/issues/feat/done/enable-open-session-edition.md",
+    ".github/issues/feat/done/enable-session-title.md",
+    ".github/issues/feat/enable-open-session-edition.md",
+    ".github/issues/feat/enable-session-title.md",
+    ".github/issues/fixed/shared-url.md",
+    ".github/issues/fixed/waiting-player-not-displayed.md",
+    "back/handlers/session.ts",
+    "front/src/components/host/HostApp.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/ee/fb70dc529d/0/metadata.json",
+      "transcript": "/ee/fb70dc529d/0/full.jsonl",
+      "content_hash": "/ee/fb70dc529d/0/content_hash.txt",
+      "prompt": "/ee/fb70dc529d/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 61617,
+    "api_call_count": 109
+  }
+}
