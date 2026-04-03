@@ -71,7 +71,17 @@ export function ParticipantApp({ showNav = true }: { showNav?: boolean }) {
     }
 
     if (urlCode && !urlId) {
-      // ?code=X only — fresh join, set code and trigger join after socket opens
+      // ?code=X only — check for a stored rejoin credential first
+      const rejoin = loadRejoin();
+      if (rejoin && rejoin.code === urlCode) {
+        // Restore stored credential — socket hook auto-sends rejoin_session on open
+        useParticipantStore.getState().setRejoin(rejoin.id, urlCode);
+        setIsRejoining(true);
+        setActiveCode(urlCode);
+        const timer = setTimeout(() => setIsRejoining(false), 3000);
+        return () => clearTimeout(timer);
+      }
+      // No stored credential — fresh join
       setActiveCode(urlCode);
       setTimeout(() => joinSession(), 100);
       return;
