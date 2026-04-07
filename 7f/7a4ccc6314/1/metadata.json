@@ -1,0 +1,37 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "7f7a4ccc6314",
+  "session_id": "dcb5b558-61ae-4533-8ca5-b3645d476c44",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-07T15:49:27.031968Z",
+  "branch": "feat/add-wine-answers-collection",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "wine-answers-worker/.dev.vars"
+  ],
+  "agent": "Copilot CLI",
+  "model": "claude-opus-4.6",
+  "turn_id": "205e4ead66cf",
+  "token_usage": {
+    "input_tokens": 53430028,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 48841996,
+    "output_tokens": 438879,
+    "api_call_count": 721
+  },
+  "session_metrics": {
+    "turn_count": 3
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-07T15:49:22.035401Z",
+    "agent_lines": 1,
+    "agent_removed": 0,
+    "human_added": 25,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 26,
+    "total_lines_changed": 31,
+    "agent_percentage": 3.225806451612903,
+    "metric_version": 2
+  }
+}
