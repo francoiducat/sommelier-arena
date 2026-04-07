@@ -11,10 +11,16 @@ export default defineConfig({
   retries: 1,
   // 45 s per test — mobile browsers and cross-device rejoin scenarios need headroom.
   timeout: 45_000,
-  reporter: [['list'], ['html', { open: 'never' }]],
+  // Hard cap on the entire test suite to prevent infinite hangs in CI.
+  globalTimeout: 15 * 60 * 1_000,
+  // In CI: also emit GitHub Actions ::error annotations for failing tests.
+  // The 'list' reporter shows one line per test (pass or fail) so we get
+  // live progress in the Actions log regardless of whether tests pass or fail.
+  reporter: process.env.CI
+    ? [['github'], ['list'], ['html', { open: 'never' }]]
+    : [['list'], ['html', { open: 'never' }]],
 
-  // Checks that the Docker stack is up before any tests run.
-  // Start it with: docker-compose up -d
+  // Checks that the services are up before any tests run.
   globalSetup: './global-setup.ts',
 
   use: {
