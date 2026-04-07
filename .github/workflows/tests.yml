@@ -16,7 +16,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
           cache-dependency-path: front/package-lock.json
 
@@ -34,7 +34,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
           cache-dependency-path: |
             front/package-lock.json
@@ -47,6 +47,13 @@ jobs:
       - name: Start PartyKit backend
         run: npx partykit dev --port 1999 &
 
+      # ── Wine Answers Worker ───────────────────────────────────────────────────
+      - name: Install wine-answers-worker dependencies
+        run: npm --prefix wine-answers-worker ci
+
+      - name: Start wine-answers worker
+        run: npm --prefix wine-answers-worker run dev &
+
       # ── Frontend: build static bundle then serve with astro preview ──────────
       - name: Install frontend dependencies
         run: npm --prefix front ci
@@ -56,6 +63,7 @@ jobs:
         env:
           # Point the frontend bundle at the local PartyKit dev server
           PUBLIC_PARTYKIT_HOST: localhost:1999
+          PUBLIC_WINE_ANSWERS_URL: http://localhost:1998
 
       - name: Start frontend preview server
         run: npm --prefix front run preview -- --port 4321 &
@@ -70,6 +78,18 @@ jobs:
         run: npm --prefix docs-site run serve --silent &
 
       # ── Wait for services to respond ──────────────────────────────────────────
+      - name: Wait for wine-answers worker (port 1998)
+        run: |
+          for i in $(seq 1 60); do
+            if curl -sSf http://localhost:1998/answers > /dev/null 2>&1; then
+              echo "Wine-answers worker is up after ${i} attempts"
+              break
+            fi
+            echo "Waiting for wine-answers worker... attempt $i/60"
+            sleep 3
+          done
+          curl -sSf http://localhost:1998/answers || (echo "Wine-answers worker never became ready" && exit 1)
+
       - name: Wait for frontend (port 4321)
         run: |
           for i in $(seq 1 60); do

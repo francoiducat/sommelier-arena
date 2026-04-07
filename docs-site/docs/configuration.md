@@ -18,7 +18,7 @@ This page is the single reference for how Sommelier Arena is configured across t
 | **Documentation** | Docusaurus dev `http://localhost:3002` | Docusaurus container `http://localhost:3002` | Cloudflare Pages (separate project) |
 | **DO storage** (`room.storage`) | ⚠️ In-memory | ⚠️ In-memory | ✅ SQLite per DO |
 | **Cloudflare KV** (`HOSTS_KV`) | ❌ Not available | ❌ Not available | ✅ Real KV namespace |
-| **Cloudflare KV** (`WINE_ANSWERS_KV`) | ❌ Not available (worker uses local mock) | ❌ Not available (worker uses local mock) | ✅ Real KV namespace |
+| **Cloudflare KV** (`WINE_ANSWERS_KV`) | ❌ Not available (worker uses file-based local KV in `.wrangler/state/`) | ❌ Not available (worker uses file-based local KV in `.wrangler/state/`) | ✅ Real KV namespace |
 | **Browser localStorage** | ✅ Works | ✅ Works | ✅ Works |
 
 ---
@@ -98,7 +98,7 @@ All layers in one view:
 | **Backend** | DO storage | In-memory (resets on restart) | In-memory | SQLite (persistent across DO evictions) |
 | **Backend** | `HOSTS_KV` | Not available | Not available | Cloudflare KV namespace (bound in `partykit.json`) |
 | **Wine Answers** | Serving | `npx wrangler dev` `:1998` (optional) | wine-answers container (mapped `1998:1998`) | Cloudflare Worker |
-| **Wine Answers** | `WINE_ANSWERS_KV` | Not available (local mock) | Not available (local mock) | Cloudflare KV namespace |
+| **Wine Answers** | `WINE_ANSWERS_KV` | File-based local KV (`.wrangler/state/`) — seeded via `npm run seed` | File-based local KV (`.wrangler/state/`) — seeded via `npm run seed` | Cloudflare KV namespace |
 | **Wine Answers** | `ADMIN_SECRET` | Set in `.dev.vars` or env | Docker env var | `wrangler secret put ADMIN_SECRET` |
 | **Docs** | Serving | Docusaurus dev `:3002` | nginx container (mapped `3002:80`) | Cloudflare Pages (`/docs`) |
 | **Docs** | `DOCS_BASE_URL` | `/` | `/docs` | `/docs` |
