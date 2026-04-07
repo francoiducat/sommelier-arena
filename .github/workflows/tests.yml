@@ -11,6 +11,9 @@ jobs:
   unit-tests:
     name: Unit Tests (front)
     runs-on: ubuntu-latest
+    env:
+      # Force GitHub Actions' own tooling (checkout, setup-node) to run on Node.js 24
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - uses: actions/checkout@v4
 
@@ -29,6 +32,10 @@ jobs:
   e2e-tests:
     name: E2E Tests (Playwright / Chromium)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # Force GitHub Actions' own tooling (checkout, setup-node) to run on Node.js 24
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - uses: actions/checkout@v4
 
@@ -143,7 +150,7 @@ jobs:
 
       - name: Run E2E tests (Chromium only)
         working-directory: ./e2e
-        run: npx playwright test --project=chromium --reporter=dot
+        run: npx playwright test --project=chromium --reporter=github
 
       - name: Upload Playwright report on failure
         if: failure()

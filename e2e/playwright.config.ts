@@ -11,10 +11,11 @@ export default defineConfig({
   retries: 1,
   // 45 s per test — mobile browsers and cross-device rejoin scenarios need headroom.
   timeout: 45_000,
+  // Hard cap on the entire test suite to prevent infinite hangs in CI.
+  globalTimeout: 15 * 60 * 1_000,
   reporter: [['list'], ['html', { open: 'never' }]],
 
-  // Checks that the Docker stack is up before any tests run.
-  // Start it with: docker-compose up -d
+  // Checks that the services are up before any tests run.
   globalSetup: './global-setup.ts',
 
   use: {
