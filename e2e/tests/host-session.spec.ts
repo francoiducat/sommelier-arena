@@ -2,8 +2,8 @@ import { test, expect, type Browser } from '@playwright/test';
 
 // Reusable helper: fill in a minimal valid session (1 wine, all fields)
 async function fillMinimalSession(page: import('@playwright/test').Page) {
-  // Only fill wine name — combobox answer fields already have valid defaults
-  await page.getByLabel('Wine name', { exact: true }).fill('Château Test');
+  // All form fields have valid default values — only override wine name for test identity.
+  await page.getByLabel('Wine 1 Wine Name — correct answer').fill('Château Test');
 }
 
 test.describe('Host Session', () => {
@@ -36,12 +36,13 @@ test.describe('Host Session', () => {
   });
 
   test('Host Session - boundary: submit with empty wine name shows error @smoke', async ({ page }) => {
-    await test.step('Leave wine name empty and submit', async () => {
+    await test.step('Clear the wine name field and submit', async () => {
+      await page.getByLabel('Wine 1 Wine Name — correct answer').clear();
       await page.getByRole('button', { name: /create tasting/i }).click();
     });
 
     await test.step('Inline error is announced via role=alert', async () => {
-      await expect(page.getByRole('alert')).toContainText(/wine 1.*name is required/i);
+      await expect(page.getByRole('alert')).toContainText(/wine 1.*wine name.*is required/i);
     });
   });
 
@@ -49,8 +50,8 @@ test.describe('Host Session', () => {
   // The "correct answer is required" validation still exists in code but is unreachable via Playwright.
   test.skip('Host Session - boundary: submit with empty correct answer shows error @smoke', async ({ page }) => {
     await test.step('Fill wine name, clear a correct answer, then submit', async () => {
-      await page.getByLabel('Wine name', { exact: true }).fill('Test Wine');
-      await page.getByLabel('Wine 1 Color — correct answer').fill('');
+      await page.getByLabel('Wine 1 Wine Name — correct answer').fill('Test Wine');
+      await page.getByLabel('Wine 1 Wine Name — correct answer').clear();
       await page.keyboard.press('Escape');
       await page.getByRole('button', { name: /create tasting/i }).click();
     });
@@ -71,7 +72,7 @@ test.describe('Host Session', () => {
     }
     await expect(page.getByRole('button', { name: /create tasting/i })).toBeVisible();
 
-    await page.getByLabel('Wine name', { exact: true }).fill('URL Test Wine');
+    await page.getByLabel('Wine 1 Wine Name — correct answer').fill('URL Test Wine');
     await page.getByRole('button', { name: /create tasting/i }).click();
 
     const codeEl = page.locator('[aria-label^="Tasting code"]');
@@ -91,7 +92,7 @@ test.describe('Host Session', () => {
     if (await newBtn.waitFor({ state: 'visible', timeout: 8000 }).then(() => true).catch(() => false)) {
       await newBtn.click();
     }
-    await page1.getByLabel('Wine name', { exact: true }).fill('Reconnect Test Wine');
+    await page1.getByLabel('Wine 1 Wine Name — correct answer').fill('Reconnect Test Wine');
     await page1.getByRole('button', { name: /create tasting/i }).click();
 
     const codeEl = page1.locator('[aria-label^="Tasting code"]');

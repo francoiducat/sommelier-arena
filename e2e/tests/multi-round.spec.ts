@@ -14,8 +14,8 @@ async function fillWine(
   wineNum: number,
   wineName: string,
 ) {
-  // Only fill wine name — combobox answer fields already have valid defaults
-  await page.getByLabel(`Wine name`, { exact: true }).nth(wineNum - 1).fill(wineName);
+  // Each wine block has a distinct label: "Wine N Wine Name — correct answer"
+  await page.getByLabel(`Wine ${wineNum} Wine Name — correct answer`, { exact: true }).fill(wineName);
 }
 
 /** Create a session with two wines. Returns hostPage, hostCtx, and session code. */

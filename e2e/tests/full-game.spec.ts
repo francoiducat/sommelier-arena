@@ -15,8 +15,8 @@ async function hostCreateSession(browser: Browser) {
   }
   await expect(hostPage.getByRole('button', { name: /create tasting/i })).toBeVisible();
 
-  // Wine name (combobox answer fields already have valid defaults)
-  await hostPage.getByLabel('Wine name', { exact: true }).fill('Grand Cru Test');
+  // All form fields have valid default values — only override wine name for test identity.
+  await hostPage.getByLabel('Wine 1 Wine Name — correct answer').fill('Grand Cru Test');
 
   await hostPage.getByRole('button', { name: /create tasting/i }).click();
 

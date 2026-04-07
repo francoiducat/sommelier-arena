@@ -22,7 +22,7 @@ async function createSessionAndJoin(browser: Browser) {
   }
   await expect(hostPage.getByRole('button', { name: /create tasting/i })).toBeVisible();
 
-  await hostPage.getByLabel('Wine name', { exact: true }).fill('Rejoin Test Wine');
+  await hostPage.getByLabel('Wine 1 Wine Name — correct answer').fill('Rejoin Test Wine');
   await hostPage.getByRole('button', { name: /create tasting/i }).click();
 
   const codeEl = hostPage.locator('[aria-label^="Tasting code"]');

@@ -18,7 +18,7 @@ async function createSessionGetCode(browser: Browser) {
   }
   await expect(page.getByRole('button', { name: /create tasting/i })).toBeVisible();
 
-  await page.getByLabel('Wine name', { exact: true }).fill('Dashboard Test Wine');
+  await page.getByLabel('Wine 1 Wine Name — correct answer').fill('Dashboard Test Wine');
 
   await page.getByRole('button', { name: /create tasting/i }).click();
 
