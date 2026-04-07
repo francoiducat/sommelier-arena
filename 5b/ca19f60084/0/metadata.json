@@ -1,0 +1,46 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "5bca19f60084",
+  "session_id": "27599124-5251-4470-9c3a-c26637404d90",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-07T19:56:22.450764Z",
+  "branch": "fix/cloudflare-binding",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "docs-site/docs/configuration.md",
+    "docs-site/docs/data-persistence.md",
+    "docs-site/docs/deployment-guide.md",
+    "docs-site/docs/event-reference.md",
+    "docs-site/docs/host-and-participant-identity.md",
+    "docs-site/docs/quick-start.md",
+    "partykit.json",
+    ".gitignore"
+  ],
+  "agent": "Copilot CLI",
+  "model": "claude-sonnet-4.6",
+  "turn_id": "f0f73a199489",
+  "checkpoint_transcript_start": 4911,
+  "transcript_lines_at_start": 4911,
+  "token_usage": {
+    "input_tokens": 0,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 75411,
+    "api_call_count": 146
+  },
+  "session_metrics": {
+    "turn_count": 9
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-07T19:56:10.880734Z",
+    "agent_lines": 96,
+    "agent_removed": 41,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 96,
+    "total_lines_changed": 137,
+    "agent_percentage": 100,
+    "metric_version": 2
+  }
+}
