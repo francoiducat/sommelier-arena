@@ -34,22 +34,32 @@ interface SavedState {
 }
 ```
 
-## Cloudflare KV
+## Cloudflare KV — HOSTS_KV (disabled)
 
-KV is used for the **host sessions index** — a list of all sessions created by a given `hostId`.
+> ⚠️ **The `HOSTS_KV` binding is currently disabled.** The `bindings.kv.HOSTS_KV` entry has
+> been removed from `partykit.json`. Session history is stored in `localStorage` only.
+>
+> **Why it was removed**: When `CLOUDFLARE_ACCOUNT_ID` + `CLOUDFLARE_API_TOKEN` are set,
+> PartyKit deploys the entire Worker (including Durable Objects) to your own Cloudflare account.
+> On the **free Cloudflare plan**, new DO namespaces require a `new_sqlite_classes` migration.
+> PartyKit does not support this migration config, so the deploy fails. Removing the binding
+> allows PartyKit to deploy to its own infrastructure with no plan restrictions.
+>
+> The `upsertKvSession()` function in `back/persistence.ts` is wrapped in `try/catch` — it
+> silently skips KV writes when no binding is present, so the game runs correctly without it.
 
-### KV namespace
+KV was used for the **host sessions index** — a list of all sessions created by a given `hostId`.
+
+### KV namespace (for reference)
 
 Name: `SOMMELIER_HOSTS`  
-Binding in `partykit.json`: `HOSTS_KV`
+Binding key (when enabled): `HOSTS_KV` in `partykit.json`
 
-### KV key format
+### KV key / value format (for reference)
 
 ```
 host:TANNIC-FALCON
 ```
-
-### KV value format
 
 ```json
 [
@@ -66,9 +76,28 @@ host:TANNIC-FALCON
 ]
 ```
 
-The `finalRankings` field is written when the session ends (`host:end`).
+### Re-enabling HOSTS_KV (requires a paid Cloudflare account)
 
-## Inspecting KV data
+1. Add the binding back to `partykit.json`:
+   ```json
+   {
+     "bindings": {
+       "kv": { "HOSTS_KV": "98082bb612964007aac177820469dddc" }
+     }
+   }
+   ```
+2. Create a Cloudflare API token with **"Edit Cloudflare Workers"** template (Workers Scripts:Edit
+   + Workers KV Storage:Edit + Account Settings:Read) at `dash.cloudflare.com/profile/api-tokens`.
+3. Deploy:
+   ```bash
+   CLOUDFLARE_ACCOUNT_ID=378a18b7a23a0fc5fda12864848b7f09 \
+   CLOUDFLARE_API_TOKEN=<token> \
+   npx partykit deploy
+   ```
+
+### Inspecting KV data (production)
+
+> The sections below apply to **WINE_ANSWERS_KV** only. HOSTS_KV is currently disabled.
 
 ### ⚠️ Local dev vs production — critical distinction
 
@@ -94,15 +123,18 @@ npx wrangler kv key get "color" --binding=WINE_ANSWERS_KV --local
 npx wrangler kv key get "grape_variety" --binding=WINE_ANSWERS_KV --local
 ```
 
-> The `HOSTS_KV` binding (for SOMMELIER\_HOSTS) is managed by PartyKit and is not available via `wrangler dev`. It is production-only.
+> HOSTS_KV (SOMMELIER_HOSTS) is managed by PartyKit and is currently disabled — see [Cloudflare KV — HOSTS_KV (disabled)](#cloudflare-kv--hosts_kv-disabled) above.
 
 ### Inspect production KV
 
 `wrangler kv key list --namespace-id=...` always queries production. Requires `npx wrangler login`.
 
-#### SOMMELIER\_HOSTS — host session index
+#### SOMMELIER\_HOSTS — host session index (disabled)
 
 Namespace ID: `98082bb612964007aac177820469dddc`
+
+The namespace exists in the Cloudflare account but the binding is disabled. These commands will
+return empty results until the binding is re-enabled (paid Cloudflare plan required).
 
 ```bash
 # List all keys (one per hostId that has created a session)
@@ -158,13 +190,13 @@ npm run seed        # seeds http://localhost:1998 with secret "changeme"
 
 ## What survives
 
-| Event | DO storage | KV |
-|-------|-----------|-----|
-| DO eviction (idle) | ✅ restored on next connection | ✅ unchanged |
-| Page refresh (host) | ✅ `rejoin_host` restores full state | ✅ unchanged |
-| Page refresh (participant) | ✅ `rejoin_session { pseudonym }` restores state | — |
-| Server restart (local dev) | ❌ in-memory lost; storage persists | ✅ unchanged |
-| `partykit dev` restart | ❌ local storage cleared | — |
+| Event | DO storage | HOSTS_KV | localStorage |
+|-------|-----------|----------|--------------|
+| DO eviction (idle) | ✅ restored on next connection | N/A (disabled) | ✅ unchanged |
+| Page refresh (host) | ✅ `rejoin_host` restores full state | N/A (disabled) | ✅ unchanged |
+| Page refresh (participant) | ✅ `rejoin_session { pseudonym }` restores state | — | ✅ unchanged |
+| Server restart (local dev) | ❌ in-memory lost; storage persists | N/A | ✅ unchanged |
+| `partykit dev` restart | ❌ local storage cleared | — | ✅ unchanged |
 
 > **Note**: In `npx partykit dev` mode, DO storage is in-memory only. Production Cloudflare Workers use real SQLite-backed DO storage.
 

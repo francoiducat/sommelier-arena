@@ -23,7 +23,7 @@ npx partykit dev
 ```
 
 :::tip No Cloudflare account needed for local dev
-`npx partykit dev` runs a **local in-memory simulator** — it emulates Cloudflare Durable Objects entirely on your machine with no internet connection required. Note: Cloudflare KV (`HOSTS_KV`) is not available locally; session history comes from browser localStorage only. See [Configuration & Environments](./configuration.md) for the full comparison.
+`npx partykit dev` runs a **local in-memory simulator** — it emulates Cloudflare Durable Objects entirely on your machine with no internet connection required. Note: Cloudflare KV (`HOSTS_KV`) is **disabled in all environments** (binding removed — see [Data Persistence](./data-persistence.md#cloudflare-kv--hosts_kv-disabled)); session history comes from browser localStorage only.
 :::
 
 :::warning After any backend change — redeploy!

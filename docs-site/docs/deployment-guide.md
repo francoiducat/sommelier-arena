@@ -52,19 +52,34 @@ npx partykit deploy
 
 Notes:
 - PartyKit publishes Durable Objects to a project-specific domain: `sommelier-arena.<your-username>.partykit.dev`.
-- Ensure `partykit.json` contains KV namespace bindings where required.
+- No Cloudflare account env vars are required for the PartyKit deploy step — PartyKit hosts the
+  Worker and Durable Objects on its own Cloudflare infrastructure.
 
-## Cloudflare KV (HOSTS_KV)
+### Why HOSTS_KV is not bound
 
-Create a KV namespace and bind it to PartyKit/Worker deployments. Using Wrangler (scriptable):
+The `partykit.json` does **not** declare a `bindings.kv.HOSTS_KV` entry. Here is why:
 
-```bash
-# Create namespace via Wrangler (requires CF_API_TOKEN)
-npx wrangler kv:namespace create "SOMMELIER_HOSTS" --account-id $CF_ACCOUNT_ID
-# Wrangler prints the namespace id: add it to partykit.json bindings
-```
+When `CLOUDFLARE_ACCOUNT_ID` + `CLOUDFLARE_API_TOKEN` are set, PartyKit deploys the **entire
+Worker and Durable Object** to your Cloudflare account (not its own). On the **free Cloudflare
+plan**, Cloudflare requires new Durable Object namespaces to use a `new_sqlite_classes` migration.
+PartyKit does not expose a migration configuration option, so this combination is blocked on the
+free plan.
 
-## Wine Answers Worker
+Without the binding, PartyKit deploys to its own infrastructure — the DO works correctly with
+SQLite-backed storage. Session history falls back to `localStorage` (already the primary
+mechanism — all reads and writes go through the browser first). The `upsertKvSession()` function
+in `back/persistence.ts` is wrapped in `try/catch` and silently skips KV writes when no binding
+is present.
+
+> **To re-enable HOSTS_KV** (paid Cloudflare plan required):
+> 1. Add `"bindings": { "kv": { "HOSTS_KV": "98082bb612964007aac177820469dddc" } }` back to
+>    `partykit.json`.
+> 2. Create a Cloudflare API token at `dash.cloudflare.com/profile/api-tokens` using the
+>    **"Edit Cloudflare Workers"** template (Workers Scripts:Edit + Workers KV Storage:Edit +
+>    Account Settings:Read).
+> 3. Deploy: `CLOUDFLARE_ACCOUNT_ID=<id> CLOUDFLARE_API_TOKEN=<token> npx partykit deploy`
+
+## Cloudflare KV (WINE_ANSWERS_KV)
 
 The Wine Answers Worker serves curated answer suggestions for the session creation form.
 
@@ -182,7 +197,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Install root dependencies
         run: npm ci

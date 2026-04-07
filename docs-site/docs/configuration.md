@@ -17,7 +17,7 @@ This page is the single reference for how Sommelier Arena is configured across t
 | **Wine Answers Worker** | `npx wrangler dev` `http://localhost:1998` (optional) | wine-answers container `http://localhost:1998` | Cloudflare Worker |
 | **Documentation** | Docusaurus dev `http://localhost:3002` | Docusaurus container `http://localhost:3002` | Cloudflare Pages (separate project) |
 | **DO storage** (`room.storage`) | ⚠️ In-memory | ⚠️ In-memory | ✅ SQLite per DO |
-| **Cloudflare KV** (`HOSTS_KV`) | ❌ Not available | ❌ Not available | ✅ Real KV namespace |
+| **Cloudflare KV** (`HOSTS_KV`) | ❌ Not available | ❌ Not available | ❌ Disabled (see note) |
 | **Cloudflare KV** (`WINE_ANSWERS_KV`) | ❌ Not available (worker uses file-based local KV in `.wrangler/state/`) | ❌ Not available (worker uses file-based local KV in `.wrangler/state/`) | ✅ Real KV namespace |
 | **Browser localStorage** | ✅ Works | ✅ Works | ✅ Works |
 
@@ -96,7 +96,7 @@ All layers in one view:
 | **Frontend** | Serving | Astro dev server `:4321` | nginx container (mapped `4321:4321`) | Cloudflare Pages CDN |
 | **Backend** | PartyKit | `npx partykit dev --port 1999` | PartyKit container (exposed `:1999`) | Cloudflare Workers (Durable Objects) |
 | **Backend** | DO storage | In-memory (resets on restart) | In-memory | SQLite (persistent across DO evictions) |
-| **Backend** | `HOSTS_KV` | Not available | Not available | Cloudflare KV namespace (bound in `partykit.json`) |
+| **Backend** | `HOSTS_KV` | Disabled in all environments — binding removed from `partykit.json` (CF free plan incompatibility with custom account deploys). Session history is localStorage-only. |
 | **Wine Answers** | Serving | `npx wrangler dev` `:1998` (optional) | wine-answers container (mapped `1998:1998`) | Cloudflare Worker |
 | **Wine Answers** | `WINE_ANSWERS_KV` | File-based local KV (`.wrangler/state/`) — seeded via `npm run seed` | File-based local KV (`.wrangler/state/`) — seeded via `npm run seed` | Cloudflare KV namespace |
 | **Wine Answers** | `ADMIN_SECRET` | Set in `.dev.vars` or env | Docker env var | `wrangler secret put ADMIN_SECRET` |
@@ -162,7 +162,10 @@ The Playwright E2E tests run against the Docker stack (Mode B). Without nginx:
 
 Works identically in all environments. Managed by `front/src/lib/sessionStorage.ts`.
 
-> ⚠️ **Local dev note**: Because KV is not available locally, the Host Dashboard session list comes **only** from localStorage. Use the 🗑 button to clean up stale sessions.
+> ⚠️ **Session history note**: The `HOSTS_KV` binding has been removed from `partykit.json`
+> (Cloudflare free plan blocks DO creation on custom accounts; PartyKit does not support the
+> required migration config). Session history is **localStorage-only** in all environments —
+> local dev, Docker, and production. Use the 🗑 button in the Host Dashboard to clean up stale sessions.
 
 ### 2. Durable Object storage (`room.storage`) — in-memory locally
 
