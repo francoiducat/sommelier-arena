@@ -171,7 +171,11 @@ Sent to participant on `rejoin_session`.
 
 ### `sessions:list`
 
-Sent to host listing their past and active sessions (sourced from KV).
+> ⚠️ **Not currently active** — requires `HOSTS_KV` binding in `partykit.json`, which is
+> disabled. Session history is served from `localStorage` on the client. See
+> [Data Persistence](./data-persistence.md#cloudflare-kv--hosts_kv-disabled) for details.
+
+Sent to host listing their past and active sessions (sourced from KV when enabled).
 
 ```ts
 {
@@ -327,7 +331,11 @@ Sent by the backend to **every client** immediately after they connect or reconn
 
 ### `sessions:list`
 
-Sent to the **host** in response to connecting with a host ID. Contains all sessions stored under that host ID.
+> ⚠️ **Not currently active** — requires `HOSTS_KV` binding, which is disabled. Session
+> history comes from `localStorage` only. See
+> [Data Persistence](./data-persistence.md#cloudflare-kv--hosts_kv-disabled).
+
+Sent to the **host** in response to connecting with a host ID. Contains all sessions stored under that host ID (when HOSTS_KV binding is enabled).
 
 **Direction:** Server → Host  
 **Payload:**

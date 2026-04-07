@@ -34,7 +34,8 @@ The host's identity is generated once in the browser by `hostStore.ts`:
 - Preserved across page refreshes on the same device
 - Restorable on a different device by opening the share URL `?id=TANNIC-BARREL`
 
-The host's session list in the KV store is indexed under `host:TANNIC-BARREL`.
+The host's session list is indexed by `host:TANNIC-BARREL` in the SOMMELIER_HOSTS KV namespace
+(currently disabled — session history is localStorage-only; see [Data Persistence](./data-persistence.md#cloudflare-kv--hosts_kv-disabled)).
 
 ## Participant identity (pseudonym)
 

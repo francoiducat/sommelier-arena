@@ -1,10 +1,5 @@
 {
   "name": "sommelier-arena",
   "main": "back/game.ts",
-  "compatibilityDate": "2026-03-22",
-  "bindings": {
-    "kv": {
-      "HOSTS_KV": "98082bb612964007aac177820469dddc"
-    }
-  }
+  "compatibilityDate": "2026-03-22"
 }
