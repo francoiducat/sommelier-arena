@@ -44,7 +44,7 @@ sidebar_label: Architecture
 │   └── index.ts                  ← Cloudflare Worker: routes /docs/* to docs Pages
 ├── wine-answers-worker/          ← Cloudflare Worker: curated wine answer suggestions (KV-backed)
 │   └── index.ts                  ← GET/POST/DELETE endpoints for answer collections
-├── partykit.json                 ← PartyKit config + KV binding
+├── partykit.json                 ← PartyKit config (no KV binding — see data-persistence.md)
 ├── package.json                  ← root: partykit + partysocket
 └── docker-compose.yml            ← Mode B: full-stack with PartyKit in Docker
 ```
@@ -64,13 +64,12 @@ Browser (Host)          Browser (Participant)
   │                                        │
   │   this.room.storage  ← game state      │
   │   this.room.broadcast ← fan-out msgs   │
-  └──────────────────┬─────────────────────┘
-                     │  KV write
-                     ▼
-           Cloudflare KV
-           SOMMELIER_HOSTS
-           key: host:{TANNIC-FALCON}
+  └────────────────────────────────────────┘
 ```
+
+> **Session history**: the DO does not write to Cloudflare KV — the `HOSTS_KV` binding has
+> been removed (CF free-plan incompatibility). Session history is `localStorage`-only.
+> See [Data Persistence](./data-persistence.md#cloudflare-kv--hosts_kv-disabled).
 
 ## Durable Object lifecycle
 

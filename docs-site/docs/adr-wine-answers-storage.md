@@ -12,7 +12,7 @@ Accepted
 
 ## Context
 
-Sommelier Arena is a real-time blind wine tasting quiz. The existing infrastructure uses **Cloudflare Durable Objects** (via PartyKit) to manage game sessions — each session is a stateful room with its own lifecycle, real-time WebSocket connections, and an in-memory state machine (`SessionPhase`). A **Cloudflare KV** namespace (`SOMMELIER_HOSTS`) already serves as a lightweight index mapping session codes to host identities.
+Sommelier Arena is a real-time blind wine tasting quiz. The existing infrastructure uses **Cloudflare Durable Objects** (via PartyKit) to manage game sessions — each session is a stateful room with its own lifecycle, real-time WebSocket connections, and an in-memory state machine (`SessionPhase`). A **Cloudflare KV** namespace (`SOMMELIER_HOSTS`) was initially used as a lightweight host session index, but that binding has since been removed (free-plan incompatibility — see [Data Persistence](./data-persistence.md#cloudflare-kv--hosts_kv-disabled)); session history is now localStorage-only.
 
 A new feature introduces a **shared wine answer collection**: reference data that hosts browse and select from when building tastings. The dataset spans five categories — color, country, grape variety, vintage year, and wine name — totalling roughly 200 entries. The data characteristics are fundamentally different from game session state:
 
@@ -97,7 +97,7 @@ The **KV race condition on concurrent writes** is explicitly accepted. The write
 This decision reinforces a clean separation in the system:
 
 - **Durable Objects** own **ephemeral, real-time, per-session state** — the game rooms where strong consistency and WebSocket presence matter.
-- **Cloudflare KV** owns **long-lived, shared, read-heavy reference data** — the wine answer collections and the host session index.
+- **Cloudflare KV** owns **long-lived, shared, read-heavy reference data** — the wine answer collections. (The host session index was originally also in KV but the binding was removed; session history is now localStorage-only.)
 
 Each storage technology is used for what it was designed for.
 

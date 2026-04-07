@@ -84,6 +84,6 @@ If the host disconnects (browser close, network loss), the game enters a **1-hou
 
 Host clicks **End Session** at any time OR the game completes all questions. On end:
 
-1. Final rankings are written to KV (`host:{hostId}` key, `finalRankings` field of the matching session entry)
+1. Final rankings are saved to Durable Object state (`finalRankings` in the session snapshot). Note: KV writes are disabled — session history is `localStorage`-only.
 2. All clients receive `session:ended`
 3. Phase transitions to `ended`

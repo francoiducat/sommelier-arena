@@ -17,7 +17,7 @@ sidebar_label: Tech Stack
 | WebSockets | **PartySocket** (`partysocket`) | Drop-in wrapper with auto-reconnect |
 | Backend | **PartyKit** (Cloudflare Workers + Durable Objects) | One DO instance per game session |
 | Persistence | **Durable Object storage** (SQLite-backed) | Game state survives DO eviction |
-| Session index | **Cloudflare KV** (`SOMMELIER_HOSTS` namespace) | Maps `host:{id}` → list of session codes |
+| Session index | **Browser localStorage** | Host session list per device — `sommelier-arena-host-{hostId}` key (KV binding disabled; see [Data Persistence](./data-persistence.md#cloudflare-kv--hosts_kv-disabled)) |
 | Wine answers | **Cloudflare KV** (`WINE_ANSWERS_KV` namespace) | Category → JSON array of curated answer strings |
 | Wine Answers Worker | **Cloudflare Worker** (`wine-answers-worker/`) | REST API for curated answer suggestions (port 1998 locally) |
 | DNS + TLS | **Cloudflare** (`ducatillon.net`) | Managed; zero cert renewal |

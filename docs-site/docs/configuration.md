@@ -179,11 +179,11 @@ Works identically in all environments. Managed by `front/src/lib/sessionStorage.
 - **Local / Docker**: In-memory. Restarting `partykit dev` or `docker-compose down` clears all sessions.
 - **Production**: SQLite-backed. `onStart()` in `back/game.ts` reads saved state when the DO wakes from cold storage.
 
-### 3. Cloudflare KV (`HOSTS_KV`) — production only
+### 3. Cloudflare KV (`HOSTS_KV`) — **disabled in all environments**
 
-Cross-session host index. Key: `host:{hostId}` → `SessionListEntry[]`.
+The `HOSTS_KV` binding has been removed from `partykit.json`. Session history is **localStorage-only** everywhere — local dev, Docker, and production. The backend wraps all KV writes in `try/catch` and silently skips them.
 
-Not available in Mode A or Mode B. The backend wraps all KV writes in `try/catch` and silently skips them locally — the app continues working via localStorage.
+See [Data Persistence](./data-persistence.md#cloudflare-kv--hosts_kv-disabled) for the full explanation and re-enabling instructions (requires a paid Cloudflare plan).
 
 ---
 

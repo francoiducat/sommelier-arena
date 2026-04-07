@@ -20,7 +20,6 @@ flowchart LR
   Browser -->|WSS| PartyKit[PartyKit - Cloudflare Workers DO]
   Pages --> Proxy[Proxy Worker]
   Proxy --> Docs[Docs - Docusaurus on Pages]
-  PartyKit --> KV[Cloudflare KV - HOSTS_KV]
   PartyKit --> SQLite[SQLite - Worker DO storage]
   Browser -->|HTTP| WineAnswers[Wine Answers Worker]
   WineAnswers --> WAKV[Cloudflare KV - WINE_ANSWERS_KV]
@@ -107,14 +106,28 @@ npx wrangler kv:namespace create "WINE_ANSWERS_KV" --account-id $CF_ACCOUNT_ID
 
 ## Cloudflare Pages (Frontend & Docs)
 
-Frontend (Pages project)
+### Frontend (Pages project)
 
 - Root dir: `front`
 - Build command: `npm run build`
 - Output dir: `dist`
-- Env: `PUBLIC_PARTYKIT_HOST` = `sommelier-arena.<username>.partykit.dev`
 
-Docs (Pages project)
+**Required build environment variables** (set in Cloudflare Pages → Settings → Environment Variables):
+
+| Variable | Value | Why |
+|----------|-------|-----|
+| `PUBLIC_PARTYKIT_HOST` | `sommelier-arena.<username>.partykit.dev` | Backend WebSocket host — baked into the JS bundle at build time |
+| `PUBLIC_WINE_ANSWERS_URL` | `https://sommelier-arena-wine-answers.<subdomain>.workers.dev` | Wine answer suggestions API — baked into the JS bundle at build time |
+
+> ⚠️ **Both env vars are required.** They are embedded into the frontend at **build time** by
+> Astro — not at runtime. If either is missing, the frontend falls back to `localhost` defaults
+> which do not work in production. Symptoms: comboboxes show no suggestions; admin dashboard
+> shows "Failed to fetch".
+>
+> After setting or changing these variables, **trigger a new Pages deployment** (push a commit
+> or use the "Retry deployment" button in the Cloudflare dashboard).
+
+### Docs (Pages project)
 
 - Root dir: `docs-site`
 - Build command: `npm run build`
@@ -226,11 +239,13 @@ jobs:
         # Replace with: vercel --prod ./docs-site/build  OR  netlify deploy --prod --dir docs-site/build
         run: npx wrangler pages deploy ./docs-site/build --project-name sommelier-arena-docs
 
-      # 3. Build frontend with baked-in PartyKit host, then deploy
+      # 3. Build frontend with baked-in PartyKit host and Wine Answers URL, then deploy
       - name: Build frontend
         run: |
           npm --prefix front ci
-          PUBLIC_PARTYKIT_HOST=$PARTYKIT_HOST npm --prefix front run build
+          PUBLIC_PARTYKIT_HOST=$PARTYKIT_HOST \
+          PUBLIC_WINE_ANSWERS_URL=${{ secrets.PUBLIC_WINE_ANSWERS_URL }} \
+          npm --prefix front run build
 
       - name: Deploy frontend to Cloudflare Pages
         # Replace with: vercel --prod ./front/dist  OR  netlify deploy --prod --dir front/dist

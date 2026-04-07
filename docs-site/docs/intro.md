@@ -13,7 +13,7 @@ A real-time blind wine tasting quiz — Kahoot-style, €0/month to host, zero c
 
 A **host** creates a tasting with one or more wines. Each wine gets five questions (color, region, grape variety, vintage year, wine name). **Participants** join via a 4-digit code on their phone, answer live as the host controls the pace, and compete on a leaderboard.
 
-Everything runs on **Cloudflare**: the frontend is a static Astro site on Cloudflare Pages; the game backend is a PartyKit Durable Object (Cloudflare Workers); session lists are stored in Cloudflare KV.
+Everything runs on **Cloudflare**: the frontend is a static Astro site on Cloudflare Pages; the game backend is a PartyKit Durable Object (Cloudflare Workers); session lists are stored in **browser localStorage**.
 
 ## Core concepts
 
